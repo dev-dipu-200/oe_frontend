@@ -126,8 +126,8 @@
                      @click="toggleTaskStatus(task)"
                      class="oe-bg-gray-50 oe-px-5 oe-py-4 oe-rounded-2xl oe-flex oe-justify-between oe-items-center cursor-pointer hover:oe-bg-gray-100 transition-colors">
                   <div class="oe-flex oe-items-center oe-gap-3">
-                    <span class="oe-flex oe-items-center oe-justify-center oe-w-6 oe-h-6 oe-border oe-rounded-full transition-colors"
-                          :class="task.status === 'Done' ? 'oe-bg-emerald-500 oe-border-emerald-500 oe-text-white' : 'oe-border-gray-300'">
+                    <span class="oe-flex oe-items-center oe-justify-center oe-w-4 oe-h-4 oe-border oe-rounded-full transition-colors"
+                          :class="task.status === 'Done' ? 'oe-rounded-full oe-border-green-500 oe-text-green-500' : 'oe-border-gray-300'">
                         <svg v-if="task.status === 'Done'" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="oe-w-4 oe-h-4">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
@@ -183,8 +183,8 @@
                      @click="toggleTaskStatus(task)"
                      class="oe-bg-gray-50 oe-px-5 oe-py-4 oe-rounded-2xl oe-flex oe-justify-between oe-items-center cursor-pointer hover:oe-bg-gray-100 transition-colors">
                   <div class="oe-flex oe-items-center oe-gap-3">
-                    <span class="oe-flex oe-items-center oe-justify-center oe-w-6 oe-h-6 oe-border oe-rounded-full transition-colors"
-                          :class="task.status === 'Done' ? 'oe-bg-emerald-500 oe-border-emerald-500 oe-text-white' : 'oe-border-gray-300'">
+                    <span class="oe-flex oe-items-center oe-justify-center oe-w-4 oe-h-4 oe-border oe-rounded-full transition-colors"
+                          :class="task.status === 'Done' ? 'oe-rounded-full oe-border-green-500 oe-text-green-500' : 'oe-border-gray-300'">
                         <svg v-if="task.status === 'Done'" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="oe-w-4 oe-h-4">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
@@ -239,8 +239,8 @@
                      @click="toggleTaskStatus(task)"
                      class="oe-bg-gray-50 oe-px-5 oe-py-4 oe-rounded-2xl oe-flex oe-justify-between oe-items-center cursor-pointer hover:oe-bg-gray-100 transition-colors">
                   <div class="oe-flex oe-items-center oe-gap-3">
-                    <span class="oe-flex oe-items-center oe-justify-center oe-w-6 oe-h-6 oe-border oe-rounded-full transition-colors"
-                          :class="task.status === 'Done' ? 'oe-bg-emerald-500 oe-border-emerald-500 oe-text-white' : 'oe-border-gray-300'">
+                    <span class="oe-flex oe-items-center oe-justify-center oe-w-4 oe-h-4 oe-border oe-rounded-full transition-colors"
+                          :class="task.status === 'Done' ? 'oe-rounded-full oe-border-green-500 oe-text-green-500' : 'oe-border-gray-300'">
                         <svg v-if="task.status === 'Done'" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="oe-w-4 oe-h-4">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
@@ -294,8 +294,8 @@
                      @click="toggleTaskStatus(task)"
                      class="oe-bg-gray-50 oe-px-5 oe-py-4 oe-rounded-2xl oe-flex oe-justify-between oe-items-center cursor-pointer hover:oe-bg-gray-100 transition-colors">
                   <div class="oe-flex oe-items-center oe-gap-3">
-                    <span class="oe-flex oe-items-center oe-justify-center oe-w-6 oe-h-6 oe-border oe-rounded-full transition-colors"
-                          :class="task.status === 'Done' ? 'oe-bg-emerald-500 oe-border-emerald-500 oe-text-white' : 'oe-border-gray-300'">
+                    <span class="oe-flex oe-items-center oe-justify-center oe-w-4 oe-h-4 oe-border oe-rounded-full transition-colors"
+                          :class="task.status === 'Done' ? 'oe-rounded-full oe-border-green-500 oe-text-green-500' : 'oe-border-gray-300'">
                         <svg v-if="task.status === 'Done'" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="oe-w-4 oe-h-4">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>

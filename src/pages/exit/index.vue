@@ -7,7 +7,7 @@
           <h1 class="oe-text-3xl oe-font-semibold oe-text-gray-900">Exit Management</h1>
           <p class="oe-text-gray-500">Track resignation & offboarding workflows</p>
         </div>
-        <button class="oe-bg-blue-600 hover:oe-bg-blue-700 oe-text-white oe-px-6 oe-py-3 oe-rounded-xl oe-flex oe-items-center oe-gap-2 oe-font-medium transition-colors shadow-lg shadow-blue-500/20">
+        <button class="oe-bg-white oe-border oe-border-gray-300 oe-text-gray-700 hover:oe-bg-gray-50 oe-px-6 oe-py-3 oe-rounded-xl oe-flex oe-items-center oe-gap-2 oe-font-medium transition-colors shadow-lg shadow-gray-200">
           <span class="oe-text-xl">👤</span>
           Record Resignation
         </button>
@@ -46,7 +46,7 @@
               </div>
               <div class="oe-text-right">
                 <div class="oe-flex oe-items-center oe-gap-2 oe-justify-end">
-                  <span class="oe-text-gray-400 text-sm">📅</span>
+                  <span class="oe-text-gray-400 oe-text-sm">📅</span>
                   <span class="oe-text-sm oe-text-gray-500">{{ employee.date }}</span>
                 </div>
                 <div class="oe-mt-2">
@@ -95,11 +95,11 @@
                   </div>
                   <div>
                     <p class="oe-font-semibold">Phase 1: Resignation & Discussion</p>
-                    <p class="oe-text-xs oe-text-gray-500">Resignation submission, discussion, and manager approval/rejection</p>
+                    <p class="oe-text-xs oe-text-gray-500">Resignation submission and discussion</p>
                   </div>
                 </div>
                 <div class="oe-flex oe-items-center oe-gap-3">
-                  <span class="oe-text-sm oe-font-medium text-gray-500">{{ phase1Completed }}/{{ phase1Tasks.length }}</span>
+                  <span class="oe-text-sm oe-font-medium oe-text-gray-500">{{ phase1Completed }}/{{ phase1Tasks.length }}</span>
                   <span class="oe-text-2xl transition-transform duration-200" :class="{ 'oe-rotate-180': openPhases[1] }">▼</span>
                 </div>
               </div>
@@ -122,10 +122,9 @@
                       </svg>
                     </span>
                     <div>
-                      <p class="oe-font-medium text-sm" :class="{ 'oe-line-through oe-text-gray-400': task.status === 'Done' }">{{ task.title }}</p>
+                      <p class="oe-font-medium oe-text-sm" :class="{ 'oe-line-through oe-text-gray-400': task.status === 'Done' }">{{ task.title }}</p>
                     </div>
                   </div>
-                  <!-- Status Badge Component -->
                   <TaskStatusBadge 
                     :status="task.status" 
                     @change="(newStatus) => updateTaskStatus(phase1Tasks, i, newStatus)" 
@@ -134,8 +133,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Phase 2, 3, 4 similarly with TaskStatusBadge -->
 
           <!-- Phase 2 -->
           <div class="lg:oe-col-span-6">
@@ -148,12 +145,12 @@
                     {{ phase2Progress === 100 ? '✅' : '2' }}
                   </div>
                   <div>
-                    <p class="oe-font-semibold">Phase 2: Exit Initiation (HR Action)</p>
-                    <p class="oe-text-xs oe-text-gray-500">HRMS updates on same day as resignation acceptance</p>
+                    <p class="oe-font-semibold">Phase 2: Exit Initiation</p>
+                    <p class="oe-text-xs oe-text-gray-500">HRMS updates and initiation</p>
                   </div>
                 </div>
                 <div class="oe-flex oe-items-center oe-gap-3">
-                  <span class="oe-text-sm oe-font-medium text-gray-500">{{ phase2Completed }}/{{ phase2Tasks.length }}</span>
+                  <span class="oe-text-sm oe-font-medium oe-text-gray-500">{{ phase2Completed }}/{{ phase2Tasks.length }}</span>
                   <span class="oe-text-2xl transition-transform duration-200" :class="{ 'oe-rotate-180': openPhases[2] }">▼</span>
                 </div>
               </div>
@@ -176,7 +173,7 @@
                       </svg>
                     </span>
                     <div>
-                      <p class="oe-font-medium text-sm" :class="{ 'oe-line-through oe-text-gray-400': task.status === 'Done' }">{{ task.title }}</p>
+                      <p class="oe-font-medium oe-text-sm" :class="{ 'oe-line-through oe-text-gray-400': task.status === 'Done' }">{{ task.title }}</p>
                     </div>
                   </div>
                   <TaskStatusBadge 
@@ -188,8 +185,107 @@
             </div>
           </div>
 
-          <!-- Phase 3 & Phase 4 follow the same pattern (shortened for brevity) -->
-          <!-- You can copy Phase 2 structure for Phase 3 and 4 -->
+          <!-- Phase 3 -->
+          <div class="lg:oe-col-span-6">
+            <div class="oe-border oe-border-gray-200 oe-rounded-3xl overflow-hidden oe-transition-colors" 
+                 :class="{ 'oe-border-emerald-200 oe-bg-emerald-50/30': phase3Progress === 100 }">
+              <div @click="togglePhase(3)" class="oe-flex oe-items-center oe-justify-between oe-px-6 oe-py-5 cursor-pointer hover:oe-bg-gray-50">
+                <div class="oe-flex oe-items-center oe-gap-4">
+                  <div class="oe-w-8 oe-h-8 oe-rounded-2xl oe-flex oe-items-center oe-justify-center text-xl font-semibold"
+                       :class="phase3Progress === 100 ? 'oe-bg-emerald-500 oe-text-white' : 'oe-bg-purple-100 oe-text-purple-600'">
+                    {{ phase3Progress === 100 ? '✅' : '3' }}
+                  </div>
+                  <div>
+                    <p class="oe-font-semibold">Phase 3: Knowledge Transfer</p>
+                    <p class="oe-text-xs oe-text-gray-500">Handover documentation and sessions</p>
+                  </div>
+                </div>
+                <div class="oe-flex oe-items-center oe-gap-3">
+                  <span class="oe-text-sm oe-font-medium oe-text-gray-500">{{ phase3Completed }}/{{ phase3Tasks.length }}</span>
+                  <span class="oe-text-2xl transition-transform duration-200" :class="{ 'oe-rotate-180': openPhases[3] }">▼</span>
+                </div>
+              </div>
+
+              <div class="oe-px-6 mb-4">
+                <div class="oe-h-2 oe-bg-gray-100 oe-rounded-full overflow-hidden">
+                  <div class="oe-h-full oe-bg-emerald-500 oe-transition-all" :style="{ width: phase3Progress + '%' }"></div>
+                </div>
+              </div>
+
+              <div v-if="openPhases[3]" class="oe-px-6 oe-pb-6 oe-space-y-3">
+                <div v-for="(task, i) in phase3Tasks" :key="i"
+                     @click="toggleTaskStatus(task)"
+                     class="oe-bg-gray-50 oe-px-5 oe-py-4 oe-rounded-2xl oe-flex oe-justify-between oe-items-center cursor-pointer hover:oe-bg-gray-100 transition-all">
+                  <div class="oe-flex oe-items-center oe-gap-3 flex-1">
+                    <span class="oe-w-6 oe-h-6 oe-flex oe-items-center oe-justify-center oe-border-2 oe-rounded-full transition-colors"
+                          :class="task.status === 'Done' ? 'oe-bg-emerald-500 oe-border-emerald-500 oe-text-white' : 'oe-border-gray-300'">
+                      <svg v-if="task.status === 'Done'" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="oe-w-4 oe-h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </span>
+                    <div>
+                      <p class="oe-font-medium oe-text-sm" :class="{ 'oe-line-through oe-text-gray-400': task.status === 'Done' }">{{ task.title }}</p>
+                    </div>
+                  </div>
+                  <TaskStatusBadge 
+                    :status="task.status" 
+                    @change="(newStatus) => updateTaskStatus(phase3Tasks, i, newStatus)" 
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Phase 4 -->
+          <div class="lg:oe-col-span-6">
+            <div class="oe-border oe-border-gray-200 oe-rounded-3xl overflow-hidden oe-transition-colors" 
+                 :class="{ 'oe-border-emerald-200 oe-bg-emerald-50/30': phase4Progress === 100 }">
+              <div @click="togglePhase(4)" class="oe-flex oe-items-center oe-justify-between oe-px-6 oe-py-5 cursor-pointer hover:oe-bg-gray-50">
+                <div class="oe-flex oe-items-center oe-gap-4">
+                  <div class="oe-w-8 oe-h-8 oe-rounded-2xl oe-flex oe-items-center oe-justify-center text-xl font-semibold"
+                       :class="phase4Progress === 100 ? 'oe-bg-emerald-500 oe-text-white' : 'oe-bg-amber-100 oe-text-amber-600'">
+                    {{ phase4Progress === 100 ? '✅' : '4' }}
+                  </div>
+                  <div>
+                    <p class="oe-font-semibold">Phase 4: Last Working Day</p>
+                    <p class="oe-text-xs oe-text-gray-500">LWD calculation and confirmation</p>
+                  </div>
+                </div>
+                <div class="oe-flex oe-items-center oe-gap-3">
+                  <span class="oe-text-sm oe-font-medium oe-text-gray-500">{{ phase4Completed }}/{{ phase4Tasks.length }}</span>
+                  <span class="oe-text-2xl transition-transform duration-200" :class="{ 'oe-rotate-180': openPhases[4] }">▼</span>
+                </div>
+              </div>
+
+              <div class="oe-px-6 mb-4">
+                <div class="oe-h-2 oe-bg-gray-100 oe-rounded-full overflow-hidden">
+                  <div class="oe-h-full oe-bg-emerald-500 oe-transition-all" :style="{ width: phase4Progress + '%' }"></div>
+                </div>
+              </div>
+
+              <div v-if="openPhases[4]" class="oe-px-6 oe-pb-6 oe-space-y-3">
+                <div v-for="(task, i) in phase4Tasks" :key="i"
+                     @click="toggleTaskStatus(task)"
+                     class="oe-bg-gray-50 oe-px-5 oe-py-4 oe-rounded-2xl oe-flex oe-justify-between oe-items-center cursor-pointer hover:oe-bg-gray-100 transition-all">
+                  <div class="oe-flex oe-items-center oe-gap-3 flex-1">
+                    <span class="oe-w-6 oe-h-6 oe-flex oe-items-center oe-justify-center oe-border-2 oe-rounded-full transition-colors"
+                          :class="task.status === 'Done' ? 'oe-bg-emerald-500 oe-border-emerald-500 oe-text-white' : 'oe-border-gray-300'">
+                      <svg v-if="task.status === 'Done'" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="oe-w-4 oe-h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </span>
+                    <div>
+                      <p class="oe-font-medium oe-text-sm" :class="{ 'oe-line-through oe-text-gray-400': task.status === 'Done' }">{{ task.title }}</p>
+                    </div>
+                  </div>
+                  <TaskStatusBadge 
+                    :status="task.status" 
+                    @change="(newStatus) => updateTaskStatus(phase4Tasks, i, newStatus)" 
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
 
         </div>
       </div>
@@ -198,51 +294,6 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-
-// ==================== Reusable Status Badge Component ====================
-const TaskStatusBadge = {
-  props: ['status'],
-  emits: ['change'],
-  setup(props, { emit }) {
-    const statusOptions = ['Hold', 'Pending', 'In Process', 'Done']
-    const isOpen = ref(false)
-
-    const getStatusStyle = (s) => {
-      switch (s) {
-        case 'Done': return 'oe-bg-emerald-100 oe-text-emerald-700'
-        case 'In Process': return 'oe-bg-blue-100 oe-text-blue-700'
-        case 'Pending': return 'oe-bg-amber-100 oe-text-amber-700'
-        case 'Hold': return 'oe-bg-gray-100 oe-text-gray-600'
-        default: return 'oe-bg-gray-100 oe-text-gray-600'
-      }
-    }
-
-    return { statusOptions, isOpen, getStatusStyle, emit }
-  },
-  template: `
-    <div class="oe-relative inline-block">
-      <span 
-        @click.stop="isOpen = !isOpen"
-        :class="getStatusStyle(status)"
-        class="oe-px-5 oe-py-1.5 oe-text-xs oe-font-medium oe-rounded-full oe-cursor-pointer hover:oe-shadow-md transition-all select-none border">
-        {{ status }}
-      </span>
-
-      <!-- Dropdown -->
-      <div v-if="isOpen" 
-           class="oe-absolute oe-right-0 oe-mt-2 oe-bg-white oe-border oe-border-gray-200 oe-rounded-2xl oe-shadow-2xl oe-z-50 oe-w-40 oe-py-1">
-        <div 
-          v-for="option in statusOptions" 
-          :key="option"
-          @click.stop="emit('change', option); isOpen = false"
-          class="oe-px-4 oe-py-3 oe-text-sm hover:oe-bg-gray-50 cursor-pointer">
-          {{ option }}
-        </div>
-      </div>
-    </div>
-  `
-}
 
 // Phase Toggle
 const openPhases = ref({ 1: true, 2: true, 3: true, 4: true })
@@ -257,13 +308,6 @@ const toggleTaskStatus = (task) => {
 
 const updateTaskStatus = (tasksArray, index, newStatus) => {
   tasksArray[index].status = newStatus
-}
-
-const getStatusClass = (task) => {
-  if (task.status === 'Done') return 'oe-bg-emerald-100 oe-text-emerald-700'
-  if (task.status === 'In Process') return 'oe-bg-blue-100 oe-text-blue-700'
-  if (task.status === 'Hold') return 'oe-bg-amber-100 oe-text-amber-700'
-  return 'oe-bg-gray-100 oe-text-gray-600'
 }
 
 // Tasks Data

@@ -18,6 +18,15 @@ export default defineNuxtConfig({
   vite: {
     optimizeDeps: {
       include: ['pinia-plugin-persistedstate']
+    },
+    server: {
+    allowedHosts: [
+      'upturned-designed-juliette.ngrok-free.dev'
+    ],
+    hmr: {
+      protocol: 'wss',
+      clientPort: 443 
     }
+  }
   }
 })

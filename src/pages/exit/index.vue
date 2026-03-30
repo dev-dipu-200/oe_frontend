@@ -359,3 +359,4 @@ const exitEmployees = [
   { id: 2, initials: "MP", avatarBg: "oe-bg-pink-100 oe-text-pink-700", name: "Meera Patel", role: "HR Executive - HR", date: "Apr 20, 2026", status: "Pending", statusClass: "oe-bg-gray-100 oe-text-gray-600", phase: "Phase 1 – Pending Approval" }
 ]
 </script>
+  

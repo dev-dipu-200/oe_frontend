@@ -52,4 +52,3 @@ export default {
     'oe-mt-12'
   ]
 } satisfies Config
-} satisfies Config

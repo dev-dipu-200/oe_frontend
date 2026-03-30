@@ -1,19 +1,19 @@
 <template>
-  <div class="oe-min-h-screen oe-bg-gray-50 dark:oe-bg-gray-900 oe-transition-colors oe-duration-300">
+  <div class="oe-min-h-screen oe-bg-gray-50 oe-transition-colors oe-duration-300">
     <!-- Main Content -->
     <div class="oe-p-2 oe-mx-auto">
       <!-- Header -->
       <div class="oe-flex oe-justify-between oe-items-center oe-mb-8">
         <div>
-          <h1 class="oe-text-3xl oe-font-semibold oe-text-gray-900 dark:oe-text-white">
+          <h1 class="oe-text-3xl oe-font-semibold oe-text-gray-900">
             Dashboard
           </h1>
-          <p class="oe-text-gray-500 dark:oe-text-gray-400">
+          <p class="oe-text-gray-500">
             Overview of onboarding & exit workflows
           </p>
         </div>
         <div class="oe-flex oe-gap-2">
-          <button @click="testLoader" class="oe-bg-gray-800 dark:oe-bg-gray-700 oe-text-white oe-px-4 oe-py-2 oe-rounded-xl oe-text-sm hover:oe-opacity-90 transition-all">Test Loader</button>
+          <button @click="testLoader" class="oe-bg-gray-800 oe-text-white oe-px-4 oe-py-2 oe-rounded-xl oe-text-sm hover:oe-opacity-90 transition-all">Test Loader</button>
           <button @click="testToasts" class="oe-bg-blue-600 oe-text-white oe-px-4 oe-py-2 oe-rounded-xl oe-text-sm hover:oe-bg-blue-700 transition-all">Test Toasts</button>
         </div>
       </div>
@@ -24,12 +24,12 @@
       >
         <!-- Active Onboarding -->
         <div
-          class="oe-bg-white dark:oe-bg-gray-800 oe-rounded-2xl oe-p-6 oe-shadow-sm oe-border oe-border-gray-100 dark:oe-border-gray-700 oe-transition-colors"
+          class="oe-bg-white oe-rounded-2xl oe-p-6 oe-shadow-sm oe-border oe-border-gray-100 oe-transition-colors"
         >
           <div class="oe-flex oe-justify-between oe-items-start">
             <div>
-              <p class="oe-text-sm oe-text-gray-500 dark:oe-text-gray-400">Active Onboarding</p>
-              <p class="oe-text-4xl oe-font-semibold oe-text-gray-900 dark:oe-text-white mt-2">
+              <p class="oe-text-sm oe-text-gray-500">Active Onboarding</p>
+              <p class="oe-text-4xl oe-font-semibold oe-text-gray-900 mt-2">
                 4
               </p>
               <p class="oe-text-xs oe-text-emerald-600 mt-1">
@@ -37,24 +37,24 @@
               </p>
             </div>
             <div
-              class="oe-w-10 oe-h-10 oe-bg-blue-100 dark:oe-bg-blue-900/40 oe-rounded-xl oe-flex oe-items-center oe-justify-center text-xl"
+              class="oe-w-10 oe-h-10 oe-bg-blue-100 oe-rounded-xl oe-flex oe-items-center oe-justify-center text-xl"
             >
               👤
             </div>
           </div>
-          <p class="oe-text-xs oe-text-gray-500 dark:oe-text-gray-400 mt-4">
+          <p class="oe-text-xs oe-text-gray-500 mt-4">
             2 in Day 1, 1 pre-onboarding
           </p>
         </div>
 
         <!-- Active Exits -->
         <div
-          class="oe-bg-white dark:oe-bg-gray-800 oe-rounded-2xl oe-p-6 oe-shadow-sm oe-border oe-border-gray-100 dark:oe-border-gray-700 oe-transition-colors"
+          class="oe-bg-white oe-rounded-2xl oe-p-6 oe-shadow-sm oe-border oe-border-gray-100 oe-transition-colors"
         >
           <div class="oe-flex oe-justify-between oe-items-start">
             <div>
-              <p class="oe-text-sm oe-text-gray-500 dark:oe-text-gray-400">Active Exits</p>
-              <p class="oe-text-4xl oe-font-semibold oe-text-gray-900 dark:oe-text-white mt-2">
+              <p class="oe-text-sm oe-text-gray-500">Active Exits</p>
+              <p class="oe-text-4xl oe-font-semibold oe-text-gray-900 mt-2">
                 2
               </p>
               <p class="oe-text-xs oe-text-amber-600 mt-1">
@@ -62,7 +62,7 @@
               </p>
             </div>
             <div
-              class="oe-w-10 oe-h-10 oe-bg-orange-100 dark:oe-bg-orange-900/40 oe-rounded-xl oe-flex oe-items-center oe-justify-center text-xl"
+              class="oe-w-10 oe-h-10 oe-bg-orange-100 oe-rounded-xl oe-flex oe-items-center oe-justify-center text-xl"
             >
               🚪
             </div>
@@ -71,18 +71,18 @@
 
         <!-- Pending Tasks -->
         <div
-          class="oe-bg-white dark:oe-bg-gray-800 oe-rounded-2xl oe-p-6 oe-shadow-sm oe-border oe-border-gray-100 dark:oe-border-gray-700 oe-transition-colors"
+          class="oe-bg-white oe-rounded-2xl oe-p-6 oe-shadow-sm oe-border oe-border-gray-100 oe-transition-colors"
         >
           <div class="oe-flex oe-justify-between oe-items-start">
             <div>
-              <p class="oe-text-sm oe-text-gray-500 dark:oe-text-gray-400">Pending Tasks</p>
-              <p class="oe-text-4xl oe-font-semibold oe-text-gray-900 dark:oe-text-white mt-2">
+              <p class="oe-text-sm oe-text-gray-500">Pending Tasks</p>
+              <p class="oe-text-4xl oe-font-semibold oe-text-gray-900 mt-2">
                 19
               </p>
               <p class="oe-text-xs oe-text-red-600 mt-1">9 due today</p>
             </div>
             <div
-              class="oe-w-10 oe-h-10 oe-bg-red-100 dark:oe-bg-red-900/40 oe-rounded-xl oe-flex oe-items-center oe-justify-center text-xl"
+              class="oe-w-10 oe-h-10 oe-bg-red-100 oe-rounded-xl oe-flex oe-items-center oe-justify-center text-xl"
             >
               ⏰
             </div>
@@ -91,12 +91,12 @@
 
         <!-- Completed This Month -->
         <div
-          class="oe-bg-white dark:oe-bg-gray-800 oe-rounded-2xl oe-p-6 oe-shadow-sm oe-border oe-border-gray-100 dark:oe-border-gray-700 oe-transition-colors"
+          class="oe-bg-white oe-rounded-2xl oe-p-6 oe-shadow-sm oe-border oe-border-gray-100 oe-transition-colors"
         >
           <div class="oe-flex oe-justify-between oe-items-start">
             <div>
-              <p class="oe-text-sm oe-text-gray-500 dark:oe-text-gray-400">Completed This Month</p>
-              <p class="oe-text-4xl oe-font-semibold oe-text-gray-900 dark:oe-text-white mt-2">
+              <p class="oe-text-sm oe-text-gray-500">Completed This Month</p>
+              <p class="oe-text-4xl oe-font-semibold oe-text-gray-900 mt-2">
                 12
               </p>
               <p class="oe-text-xs oe-text-emerald-600 mt-1">
@@ -104,7 +104,7 @@
               </p>
             </div>
             <div
-              class="oe-w-10 oe-h-10 oe-bg-emerald-100 dark:oe-bg-emerald-900/40 oe-rounded-xl oe-flex oe-items-center oe-justify-center text-xl"
+              class="oe-w-10 oe-h-10 oe-bg-emerald-100 oe-rounded-xl oe-flex oe-items-center oe-justify-center text-xl"
             >
               ✅
             </div>
@@ -118,11 +118,11 @@
         <!-- Active Onboarding - 8 columns -->
         <div class="lg:oe-col-span-8">
           <div class="oe-flex oe-justify-between oe-items-center oe-mb-4">
-            <h2 class="oe-text-xl oe-font-semibold oe-text-gray-900 dark:oe-text-white">
+            <h2 class="oe-text-xl oe-font-semibold oe-text-gray-900">
               Active Onboarding
             </h2>
             <span
-              class="oe-bg-blue-100 dark:oe-bg-blue-900/40 oe-text-blue-700 dark:oe-text-blue-300 oe-px-3 oe-py-1 oe-rounded-full oe-text-xs oe-font-medium"
+              class="oe-bg-blue-100 oe-text-blue-700 oe-px-3 oe-py-1 oe-rounded-full oe-text-xs oe-font-medium"
             >
               4 employees
             </span>
@@ -132,7 +132,7 @@
             <div
               v-for="employee in activeOnboarding"
               :key="employee.id"
-              class="oe-bg-white dark:oe-bg-gray-800 oe-rounded-2xl oe-p-5 oe-flex oe-items-center oe-gap-4 oe-shadow-sm oe-border oe-border-gray-100 dark:oe-border-gray-700 hover:oe-border-blue-200 dark:hover:oe-border-blue-800 transition-all"
+              class="oe-bg-white oe-rounded-2xl oe-p-5 oe-flex oe-items-center oe-gap-4 oe-shadow-sm oe-border oe-border-gray-100 hover:oe-border-blue-200 transition-all"
             >
               <div
                 class="oe-w-12 oe-h-12 oe-rounded-2xl oe-flex oe-items-center oe-justify-center oe-text-lg oe-font-semibold"
@@ -143,15 +143,15 @@
               <div class="oe-flex-1 min-w-0">
                 <div class="oe-flex oe-justify-between oe-items-start">
                   <div>
-                    <p class="oe-font-semibold oe-text-gray-900 dark:oe-text-white">
+                    <p class="oe-font-semibold oe-text-gray-900">
                       {{ employee.name }}
                     </p>
-                    <p class="oe-text-sm oe-text-gray-500 dark:oe-text-gray-400">
+                    <p class="oe-text-sm oe-text-gray-500">
                       {{ employee.role }}
                     </p>
                   </div>
                   <div class="oe-text-right oe-shrink-0">
-                    <p class="oe-text-xs oe-text-gray-400 dark:oe-text-gray-500">
+                    <p class="oe-text-xs oe-text-gray-400">
                       {{ employee.startDate }}
                     </p>
                     <span
@@ -169,11 +169,11 @@
           <!-- Active Exits Section -->
           <div class="lg:oe-col-span-8 oe-mt-8">
             <div class="oe-flex oe-justify-between oe-items-center oe-mb-4">
-              <h2 class="oe-text-xl oe-font-semibold oe-text-gray-900 dark:oe-text-white">
+              <h2 class="oe-text-xl oe-font-semibold oe-text-gray-900">
                 Active Exits
               </h2>
               <span
-                class="oe-bg-amber-100 dark:oe-bg-amber-900/40 oe-text-amber-700 dark:oe-text-amber-300 oe-px-3 oe-py-1 oe-rounded-full oe-text-xs oe-font-medium"
+                class="oe-bg-amber-100 oe-text-amber-700 oe-px-3 oe-py-1 oe-rounded-full oe-text-xs oe-font-medium"
               >
                 2 employees
               </span>
@@ -183,24 +183,24 @@
               <div
                 v-for="exit in activeExits"
                 :key="exit.id"
-                class="oe-bg-white dark:oe-bg-gray-800 oe-rounded-2xl oe-p-6 oe-shadow-sm oe-border oe-border-gray-100 dark:oe-border-gray-700 oe-transition-colors"
+                class="oe-bg-white oe-rounded-2xl oe-p-6 oe-shadow-sm oe-border oe-border-gray-100 oe-transition-colors"
               >
                 <div class="oe-flex oe-items-center oe-gap-4">
                   <div
-                    class="oe-w-12 oe-h-12 oe-rounded-2xl oe-flex oe-items-center oe-justify-center oe-text-lg oe-font-semibold oe-bg-rose-100 dark:oe-bg-rose-900/40 oe-text-rose-700 dark:oe-text-rose-300"
+                    class="oe-w-12 oe-h-12 oe-rounded-2xl oe-flex oe-items-center oe-justify-center oe-text-lg oe-font-semibold oe-bg-rose-100 oe-text-rose-700"
                   >
                     {{ exit.initials }}
                   </div>
                   <div class="oe-flex-1">
-                    <p class="oe-font-semibold oe-text-gray-900 dark:oe-text-white">
+                    <p class="oe-font-semibold oe-text-gray-900">
                       {{ exit.name }}
                     </p>
-                    <p class="oe-text-sm oe-text-gray-500 dark:oe-text-gray-400">{{ exit.role }}</p>
+                    <p class="oe-text-sm oe-text-gray-500">{{ exit.role }}</p>
                   </div>
                   <div class="oe-text-right">
-                    <p class="oe-text-xs oe-text-gray-400 dark:oe-text-gray-500">{{ exit.date }}</p>
+                    <p class="oe-text-xs oe-text-gray-400">{{ exit.date }}</p>
                     <span
-                      class="oe-inline-block oe-bg-teal-100 dark:oe-bg-teal-900/40 oe-text-teal-700 dark:oe-text-teal-300 oe-px-3 oe-py-1 oe-text-xs oe-rounded-full mt-2"
+                      class="oe-inline-block oe-bg-teal-100 oe-text-teal-700 oe-px-3 oe-py-1 oe-text-xs oe-rounded-full mt-2"
                     >
                       {{ exit.phase }}
                     </span>
@@ -214,25 +214,25 @@
         <!-- Pending Tasks - 4 columns -->
         <div class="lg:oe-col-span-4">
           <div class="oe-flex oe-justify-between oe-items-center oe-mb-4">
-            <h2 class="oe-text-xl oe-font-semibold oe-text-gray-900 dark:oe-text-white">
+            <h2 class="oe-text-xl oe-font-semibold oe-text-gray-900">
               Pending Tasks
             </h2>
           </div>
 
           <div
-            class="oe-bg-white dark:oe-bg-gray-800 oe-rounded-2xl oe-shadow-sm oe-border oe-border-gray-100 dark:oe-border-gray-700 oe-divide-y dark:oe-divide-gray-700 oe-overflow-hidden oe-transition-colors"
+            class="oe-bg-white oe-rounded-2xl oe-shadow-sm oe-border oe-border-gray-100 oe-divide-y oe-overflow-hidden oe-transition-colors"
           >
             <div
               v-for="task in pendingTasks"
               :key="task.id"
-              class="oe-p-5 hover:oe-bg-gray-50 dark:hover:oe-bg-gray-700 transition-colors"
+              class="oe-p-5 hover:oe-bg-gray-50 transition-colors"
             >
               <div class="oe-flex oe-justify-between oe-items-start">
                 <div class="oe-flex-1 pr-4">
-                  <p class="oe-font-medium oe-text-gray-900 dark:oe-text-white leading-tight">
+                  <p class="oe-font-medium oe-text-gray-900 leading-tight">
                     {{ task.title }}
                   </p>
-                  <p class="oe-text-sm oe-text-gray-500 dark:oe-text-gray-400 mt-1">
+                  <p class="oe-text-sm oe-text-gray-500 mt-1">
                     {{ task.assignedTo }}
                   </p>
                 </div>
@@ -243,7 +243,7 @@
                   >
                     {{ task.priority }}
                   </span>
-                  <p class="oe-text-xs oe-text-gray-400 dark:oe-text-gray-500 mt-3">{{ task.due }}</p>
+                  <p class="oe-text-xs oe-text-gray-400 mt-3">{{ task.due }}</p>
                 </div>
               </div>
             </div>
@@ -283,8 +283,8 @@ const activeOnboarding = [
     role: "Frontend Developer - Engineering",
     startDate: "Mar 25, 2026",
     status: "Active",
-    bgColor: "oe-bg-blue-100 dark:oe-bg-blue-900/40 oe-text-blue-700 dark:oe-text-blue-300",
-    statusClass: "oe-bg-emerald-100 dark:oe-bg-emerald-900/40 oe-text-emerald-700 dark:oe-text-emerald-300",
+    bgColor: "oe-bg-blue-100 oe-text-blue-700",
+    statusClass: "oe-bg-emerald-100 oe-text-emerald-700",
   },
   {
     id: 2,
@@ -293,8 +293,8 @@ const activeOnboarding = [
     role: "Product Designer - Design",
     startDate: "Mar 24, 2026",
     status: "Active",
-    bgColor: "oe-bg-purple-100 dark:oe-bg-purple-900/40 oe-text-purple-700 dark:oe-text-purple-300",
-    statusClass: "oe-bg-emerald-100 dark:oe-bg-emerald-900/40 oe-text-emerald-700 dark:oe-text-emerald-300",
+    bgColor: "oe-bg-purple-100 oe-text-purple-700",
+    statusClass: "oe-bg-emerald-100 oe-text-emerald-700",
   },
   {
     id: 3,
@@ -303,8 +303,8 @@ const activeOnboarding = [
     role: "Data Analyst - Analytics",
     startDate: "Mar 28, 2026",
     status: "Pending",
-    bgColor: "oe-bg-amber-100 dark:oe-bg-amber-900/40 oe-text-amber-700 dark:oe-text-amber-300",
-    statusClass: "oe-bg-yellow-100 dark:oe-bg-yellow-900/40 oe-text-yellow-700 dark:oe-text-yellow-300",
+    bgColor: "oe-bg-amber-100 oe-text-amber-700",
+    statusClass: "oe-bg-yellow-100 oe-text-yellow-700",
   },
   {
     id: 4,
@@ -313,8 +313,8 @@ const activeOnboarding = [
     role: "QA Engineer - Engineering",
     startDate: "Mar 20, 2026",
     status: "Completed",
-    bgColor: "oe-bg-emerald-100 dark:oe-bg-emerald-900/40 oe-text-emerald-700 dark:oe-text-emerald-300",
-    statusClass: "oe-bg-emerald-100 dark:oe-bg-emerald-900/40 oe-text-emerald-700 dark:oe-text-emerald-300",
+    bgColor: "oe-bg-emerald-100 oe-text-emerald-700",
+    statusClass: "oe-bg-emerald-100 oe-text-emerald-700",
   },
 ];
 
@@ -324,7 +324,7 @@ const pendingTasks = [
     title: "System setup – Priya Sharma",
     assignedTo: "Assigned to Network Team",
     priority: "high",
-    priorityClass: "oe-bg-red-100 dark:oe-bg-red-900/40 oe-text-red-700 dark:oe-text-red-300",
+    priorityClass: "oe-bg-red-100 oe-text-red-700",
     due: "Today",
   },
   {
@@ -332,7 +332,7 @@ const pendingTasks = [
     title: "Email creation approval – Priya Sharma",
     assignedTo: "Assigned to Neel Sir",
     priority: "high",
-    priorityClass: "oe-bg-red-100 dark:oe-bg-red-900/40 oe-text-red-700 dark:oe-text-red-300",
+    priorityClass: "oe-bg-red-100 oe-text-red-700",
     due: "Today",
   },
   {
@@ -340,7 +340,7 @@ const pendingTasks = [
     title: "Biometric & iClock setup – Priya Sharma",
     assignedTo: "Assigned to Ankur",
     priority: "high",
-    priorityClass: "oe-bg-red-100 dark:oe-bg-red-900/40 oe-text-red-700 dark:oe-text-red-300",
+    priorityClass: "oe-bg-red-100 oe-text-red-700",
     due: "Today",
   },
   {
@@ -348,7 +348,7 @@ const pendingTasks = [
     title: "Keka account creation – Rahul Verma",
     assignedTo: "Assigned to HR",
     priority: "medium",
-    priorityClass: "oe-bg-yellow-100 dark:oe-bg-yellow-900/40 oe-text-yellow-700 dark:oe-text-yellow-300",
+    priorityClass: "oe-bg-yellow-100 oe-text-yellow-700",
     due: "Tomorrow",
   },
 ];

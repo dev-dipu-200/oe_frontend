@@ -3,10 +3,10 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
+    "build": "NODE_ENV=prod nuxt build",
+    "dev": "NODE_ENV=dev nuxt dev",
+    "generate": "NODE_ENV=prod nuxt generate",
+    "preview": "NODE_ENV=prod nuxt preview",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {

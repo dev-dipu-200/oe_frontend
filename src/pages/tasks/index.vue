@@ -50,6 +50,7 @@
           </div>
         </div>
         <button
+          @click="handleFilterClick"
           class="oe-flex oe-items-center oe-gap-2 oe-bg-white oe-border oe-border-gray-200 oe-px-6 oe-rounded-2xl hover:oe-bg-gray-50 oe-transition-colors"
         >
           <span>🔽</span>
@@ -57,10 +58,15 @@
         </button>
       </div>
 
+      <!-- Loading Indicator -->
+      <div v-if="loading" class="oe-text-center oe-py-8">
+        Loading tasks...
+      </div>
+
       <!-- Task List -->
-      <div class="oe-space-y-4">
+      <div v-else-if="tasks.length > 0" class="oe-space-y-4">
         <div
-          v-for="(task, index) in filteredTasks"
+          v-for="(task, index) in tasks"
           :key="index"
           class="oe-bg-white oe-rounded-3xl oe-overflow-hidden oe-border oe-border-gray-100 oe-transition-all hover:oe-shadow-md"
         >
@@ -134,7 +140,7 @@
 
       <!-- Empty State -->
       <div
-        v-if="filteredTasks.length === 0"
+        v-else
         class="oe-bg-white oe-rounded-3xl oe-py-16 oe-text-center oe-text-gray-400"
       >
         No tasks found
@@ -144,136 +150,70 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useTasksApi } from '@/apis/tasks' // Import the new tasks API composable
+import { useToastStore } from '@/stores/toast'
 
 const activeTab = ref('all')
 const searchQuery = ref('')
+const tasks = ref([])
+const loading = ref(false)
 
 const tabs = [
-  { key: 'all', label: 'All', count: 19 },
-  { key: 'overdue', label: 'Overdue', count: 1 },
-  { key: 'in-progress', label: 'In Progress', count: 3 },
-  { key: 'pending', label: 'Pending', count: 15 },
+  { key: 'all', label: 'All', count: 0 },
+  { key: 'overdue', label: 'Overdue', count: 0 },
+  { key: 'in-progress', label: 'In Progress', count: 0 },
+  { key: 'pending', label: 'Pending', count: 0 },
   { key: 'completed', label: 'Completed', count: 0 },
 ]
 
-const allTasks = [
-  {
-    title: "Verify submitted documents (hard copies)",
-    employee: "Priya Sharma",
-    day: "Day 1",
-    assignedTo: "HR",
-    workflow: "Onboarding",
-    date: "Today",
-    status: "in-progress",
-  },
-  {
-    title: "Send internal onboarding email",
-    employee: "Priya Sharma",
-    day: "Day 1",
-    assignedTo: "HR",
-    workflow: "Onboarding",
-    date: "Today",
-    status: "pending",
-  },
-  {
-    title: "Email creation request to Neel Sir",
-    employee: "Priya Sharma",
-    day: "Day 1",
-    assignedTo: "HR",
-    workflow: "Onboarding",
-    date: "Today",
-    status: "pending",
-  },
-  {
-    title: "Email creation approval",
-    employee: "Priya Sharma",
-    day: "Day 1",
-    assignedTo: "Neel Sir",
-    workflow: "Onboarding",
-    date: "Today",
-    status: "pending",
-  },
-  {
-    title: "System setup",
-    employee: "Priya Sharma",
-    day: "Day 1",
-    assignedTo: "Network Team",
-    workflow: "Onboarding",
-    date: "Today",
-    status: "overdue",
-  },
-  {
-    title: "Sophos installation",
-    employee: "Priya Sharma",
-    day: "Day 1",
-    assignedTo: "Network Team",
-    workflow: "Onboarding",
-    date: "Today",
-    status: "pending",
-  },
-  {
-    title: "Microsoft Teams access",
-    employee: "Priya Sharma",
-    day: "Day 1",
-    assignedTo: "Network Team",
-    workflow: "Onboarding",
-    date: "Today",
-    status: "pending",
-  },
-  {
-    title: "Biometric & iClock setup",
-    employee: "Priya Sharma",
-    day: "Day 1",
-    assignedTo: "Ankur",
-    workflow: "Onboarding",
-    date: "Today",
-    status: "pending",
-  },
-  {
-    title: "Collect formal photograph",
-    employee: "Priya Sharma",
-    day: "Day 1",
-    assignedTo: "HR",
-    workflow: "Onboarding",
-    date: "Today",
-    status: "pending",
-  },
-  {
-    title: "Create Keka account (Day 3)",
-    employee: "Rahul Verma",
-    day: "Post-Onboarding",
-    assignedTo: "HR",
-    workflow: "Onboarding",
-    date: "Tomorrow",
-    status: "pending",
+const fetchTasks = async () => {
+  loading.value = true
+  const toastStore = useToastStore()
+  const { fetchTasks } = useTasksApi() // Initialize the tasks API composable
+
+  try {
+    const params = {
+      status: activeTab.value === 'all' ? undefined : activeTab.value,
+      q: searchQuery.value || undefined,
+    }
+
+    const response = await fetchTasks(params) // Use the fetchTasks from the composable
+
+    if (response) {
+      tasks.value = response
+    } else {
+      tasks.value = []
+    }
+  } catch (error) {
+    console.error('Error fetching tasks in component:', error)
+    toastStore.addToast({
+        message: 'Failed to fetch tasks.',
+        type: 'error',
+    });
+    tasks.value = []
+  } finally {
+    loading.value = false
   }
-]
+}
+
+onMounted(() => {
+  fetchTasks()
+})
+
+watch([activeTab, searchQuery], () => {
+  fetchTasks()
+})
 
 const filteredTasks = computed(() => {
-  let tasks = [...allTasks]
-
-  // Tab filtering
-  if (activeTab.value === 'overdue') {
-    tasks = tasks.filter(t => t.status === 'overdue')
-  } else if (activeTab.value === 'in-progress') {
-    tasks = tasks.filter(t => t.status === 'in-progress')
-  } else if (activeTab.value === 'pending') {
-    tasks = tasks.filter(t => t.status === 'pending')
-  } else if (activeTab.value === 'completed') {
-    tasks = []
-  }
-
-  // Search
-  if (searchQuery.value) {
-    const q = searchQuery.value.toLowerCase()
-    tasks = tasks.filter(task =>
-      task.title.toLowerCase().includes(q) ||
-      task.employee.toLowerCase().includes(q) ||
-      task.assignedTo.toLowerCase().includes(q)
-    )
-  }
-
-  return tasks
+  return tasks.value
 })
+
+const handleFilterClick = () => {
+  console.log('Filter button clicked. Implement more advanced filtering UI here.')
+  useToastStore().addToast({
+    message: 'Advanced filter options coming soon!',
+    type: 'info',
+  });
+}
 </script>

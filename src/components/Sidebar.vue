@@ -134,6 +134,26 @@
             </div>
           </div>
         </div>
+        <button
+          @click="handleLogout"
+          class="oe-mt-4 oe-w-full oe-flex oe-items-center oe-justify-center oe-gap-2 oe-px-3 oe-py-2.5 oe-rounded-xl oe-text-red-400 hover:oe-bg-gray-700 oe-transition-colors"
+        >
+          <svg
+            class="oe-w-5 oe-h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            ></path>
+          </svg>
+          <span class="oe-text-sm oe-font-medium">Logout</span>
+        </button>
       </div>
     </aside>
   </div>
@@ -141,11 +161,16 @@
 
 <script setup>
 import { useAuthStore } from "~/stores/auth";
-
 const authStore = useAuthStore();
+const router = useRouter();
 
 defineProps({
   isOpen: Boolean,
 });
 defineEmits(["close"]);
+
+const handleLogout = async () => {
+  await authStore.logout();
+  router.push('/login');
+};
 </script>

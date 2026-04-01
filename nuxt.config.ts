@@ -17,7 +17,10 @@ export default defineNuxtConfig({
   modules: ['@pinia/nuxt', '@nuxtjs/tailwindcss'],
   vite: {
     optimizeDeps: {
-      include: ['pinia-plugin-persistedstate']
+      include: [
+        'pinia-plugin-persistedstate',
+        'vue3-toastify',
+      ]
     },
     server: {
     allowedHosts: [

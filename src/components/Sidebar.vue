@@ -122,7 +122,7 @@
             <div
               class="oe-w-8 oe-h-8 oe-rounded-full oe-bg-blue-500 oe-flex oe-items-center oe-justify-center oe-text-xs oe-font-bold"
             >
-              {{ authStore.user.name.charAt(0) }}
+              {{ authStore.user.name.charAt(0)}}
             </div>
             <div class="oe-overflow-hidden">
               <p class="oe-text-lg oe-font-semibold oe-text-white oe-truncate">

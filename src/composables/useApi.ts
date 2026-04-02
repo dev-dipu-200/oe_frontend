@@ -1,4 +1,5 @@
 import { useToastStore } from '@/stores/toast'
+import { useAuthStore } from '@/stores/auth'
 
 /**
  * Interface for API call options.
@@ -18,6 +19,7 @@ interface ApiOptions {
    */
   body?: Record<string, any> | string;
   // Add other fetch options as needed, e.g., headers
+  headers?: Record<string, string>;
 }
 
 /**
@@ -28,6 +30,7 @@ interface ApiOptions {
  */
 export function useApi() {
   const toastStore = useToastStore()
+  const authStore = useAuthStore()
   const baseUrl = useRuntimeConfig().public.apiBaseUrl
 
   if (!baseUrl) {
@@ -53,13 +56,25 @@ export function useApi() {
    */
   const call = async <T>(endpoint: string, options: ApiOptions = {}): Promise<T | null> => {
     try {
-      const url = `${baseUrl}/${endpoint}`
-      console.log(`Calling API: ${url} with method: ${options.method || 'GET'} and params:`, options.params); // For debugging
+      // Normalize baseUrl and endpoint to avoid double slashes
+      const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
+      const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint
+      const url = `${cleanBaseUrl}/${cleanEndpoint}`
+      
+      const headers: Record<string, string> = {
+        ...options.headers,
+      }
+
+      if (authStore.token) {
+        headers['Authorization'] = `Bearer ${authStore.token}`
+      }
+
+      console.log(`Calling API: ${url} with method: ${options.method || 'GET'} and params:`, options.params);
       const response = await $fetch<T>(url, {
         method: options.method || 'GET',
         params: options.params,
         body: options.body,
-        // Add other fetch options here (e.g., headers)
+        headers,
       })
       return response
     } catch (error: any) {

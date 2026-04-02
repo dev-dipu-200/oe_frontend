@@ -96,7 +96,7 @@ import { useRouter } from 'vue-router'; // Import useRouter for redirection
 
 const authStore = useAuthStore();
 const router = useRouter(); // Initialize useRouter
-const userInitial = computed(() => authStore.user.name.charAt(0));
+const userInitial = computed(() => (authStore.user?.name || authStore.user?.email || 'U').charAt(0).toUpperCase());
 
 defineEmits(["toggleSidebar"]);
 

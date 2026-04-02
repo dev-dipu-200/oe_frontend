@@ -117,19 +117,19 @@
       <div
         class="oe-p-4 oe-mt-auto oe-border-t oe-border-gray-700 oe-bg-gray-900/40 lg:oe-rounded-b-2xl"
       >
-        <div class="oe-flex oe-flex-col oe-gap-1">
+        <div class="oe-flex oe-flex-col oe-gap-1" v-if="authStore.user">
           <div class="oe-flex oe-items-center oe-gap-3 oe-mt-1">
             <div
               class="oe-w-8 oe-h-8 oe-rounded-full oe-bg-blue-500 oe-flex oe-items-center oe-justify-center oe-text-xs oe-font-bold"
             >
-              {{ authStore.user.name.charAt(0)}}
+              {{ (authStore.user.name || authStore.user.email || 'U')?.charAt(0)?.toUpperCase() }}
             </div>
             <div class="oe-overflow-hidden">
               <p class="oe-text-lg oe-font-semibold oe-text-white oe-truncate">
                 {{ authStore.user.role }}
               </p>
               <p class="oe-text-[15px] oe-text-gray-400 oe-truncate">
-                {{ authStore.user.email }}
+                {{ authStore?.user?.email }}
               </p>
             </div>
           </div>

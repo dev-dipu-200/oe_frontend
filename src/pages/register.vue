@@ -25,18 +25,31 @@
           </div>
           <form class="oe-mt-8 oe-space-y-6" @submit.prevent="handleRegister">
             <div class="oe-rounded-md oe-space-y-4">
-              <div>
-                <label for="name" class="oe-sr-only">Full Name</label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  autocomplete="name"
-                  required
-                  class="oe-appearance-none oe-relative oe-block oe-w-full oe-px-4 oe-py-3 oe-border oe-border-white/30 oe-bg-white/10 oe-placeholder-gray-200 oe-text-white oe-rounded-lg focus:oe-outline-none focus:oe-ring-2 focus:oe-ring-blue-300 focus:oe-border-blue-300 sm:oe-text-sm oe-transition-all oe-duration-200"
-                  placeholder="Full Name"
-                  v-model="name"
-                />
+              <div class="oe-grid oe-grid-cols-2 oe-gap-4">
+                <div>
+                  <label for="first_name" class="oe-sr-only">First Name</label>
+                  <input
+                    id="first_name"
+                    name="first_name"
+                    type="text"
+                    required
+                    class="oe-appearance-none oe-relative oe-block oe-w-full oe-px-4 oe-py-3 oe-border oe-border-white/30 oe-bg-white/10 oe-placeholder-gray-200 oe-text-white oe-rounded-lg focus:oe-outline-none focus:oe-ring-2 focus:oe-ring-blue-300 focus:oe-border-blue-300 sm:oe-text-sm oe-transition-all oe-duration-200"
+                    placeholder="First Name"
+                    v-model="first_name"
+                  />
+                </div>
+                <div>
+                  <label for="last_name" class="oe-sr-only">Last Name</label>
+                  <input
+                    id="last_name"
+                    name="last_name"
+                    type="text"
+                    required
+                    class="oe-appearance-none oe-relative oe-block oe-w-full oe-px-4 oe-py-3 oe-border oe-border-white/30 oe-bg-white/10 oe-placeholder-gray-200 oe-text-white oe-rounded-lg focus:oe-outline-none focus:oe-ring-2 focus:oe-ring-blue-300 focus:oe-border-blue-300 sm:oe-text-sm oe-transition-all oe-duration-200"
+                    placeholder="Last Name"
+                    v-model="last_name"
+                  />
+                </div>
               </div>
               <div>
                 <label for="email-address" class="oe-sr-only">Email address</label>
@@ -50,6 +63,24 @@
                   placeholder="Email address"
                   v-model="email"
                 />
+              </div>
+              <div>
+                <label for="role" class="oe-sr-only">Role</label>
+                <select
+                  id="role"
+                  name="role"
+                  required
+                  class="oe-appearance-none oe-relative oe-block oe-w-full oe-px-4 oe-py-3 oe-border oe-border-white/30 oe-bg-white/10 oe-placeholder-gray-200 oe-text-white oe-rounded-lg focus:oe-outline-none focus:oe-ring-2 focus:oe-ring-blue-300 focus:oe-border-blue-300 sm:oe-text-sm oe-transition-all oe-duration-200"
+                  v-model="role"
+                >
+                  <option value="" disabled selected class="oe-text-gray-900">Select Role</option>
+                  <option value="SUPER_ADMIN" class="oe-text-gray-900">Super Admin</option>
+                  <option value="ADMIN" class="oe-text-gray-900">Admin</option>
+                  <option value="HR" class="oe-text-gray-900">HR</option>
+                  <option value="MANAGER" class="oe-text-gray-900">Manager</option>
+                  <option value="NETWORK" class="oe-text-gray-900">Network Admin</option>
+                  <option value="UIUX_DESIGNER" class="oe-text-gray-900">UI/UX Designer</option>
+                </select>
               </div>
               <div>
                 <label for="password" class="oe-sr-only">Password</label>
@@ -122,8 +153,10 @@ const authStore = useAuthStore()
 const router = useRouter()
 const toastStore = useToastStore()
 
-const name = ref('')
+const first_name = ref('')
+const last_name = ref('')
 const email = ref('')
+const role = ref('')
 const password = ref('')
 const confirm_password = ref('')
 const loading = ref(false)
@@ -139,10 +172,11 @@ const handleRegister = async () => {
 
   loading.value = true
   const success = await authStore.register({
-    name: name.value,
+    first_name: first_name.value,
+    last_name: last_name.value,
     email: email.value,
     password: password.value,
-    confirm_password: confirm_password.value,
+    role: role.value
   })
   if (success) {
     router.push('/') // Redirect to dashboard or home page after successful registration and login

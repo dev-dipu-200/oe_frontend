@@ -151,8 +151,6 @@ const router = useRouter();
 
 const { call } = useApi();
 const toast = useToastStore();
-const authCookie = useCookie("auth_token");
-
 const email = ref("");
 const password = ref("");
 const loading = ref(false);
@@ -163,42 +161,35 @@ const togglePasswordVisibility = () => {
   passwordVisible.value = !passwordVisible.value;
 };
 
-// ✅ FIXED LOGIN (NO authStore.login)
 const handleLogin = async () => {
   loading.value = true;
 
   try {
-    const response = await call("/auth/login", {
-      method: "POST",
-      body: {
-        email: email.value,
-        password: password.value,
-      },
-      onError: (err) => {
-        toast.addToast({
-          message: err?.data?.message || "Login failed",
-          type: "error",
-        });
-      },
+    const success = await authStore.login({
+      email: email.value,
+      password: password.value,
     });
 
-    if (response?.access_token) {
-      // ✅ Save to store
-      authStore.setAuth(response.access_token, response.data);
-
-      // ✅ Save cookie
-      authCookie.value = response.access_token;
-
+    if (success) {
       toast.addToast({
         message: "Login successful!",
         type: "success",
       });
 
       // ✅ Redirect based on role
-      router.push(getDashboardRoute(response.data.role));
+      router.push(getDashboardRoute(authStore.user?.role));
+    } else {
+      toast.addToast({
+        message: "Login failed. Please check your credentials.",
+        type: "error",
+      });
     }
   } catch (error) {
     console.error(error);
+    toast.addToast({
+      message: "An error occurred during login.",
+      type: "error",
+    });
   } finally {
     loading.value = false;
   }

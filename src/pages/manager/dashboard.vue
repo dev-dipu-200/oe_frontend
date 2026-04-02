@@ -3,7 +3,7 @@
     <div class="oe-p-2 oe-mx-auto" v-if="dashboardData">
       <div class="oe-flex oe-justify-between oe-items-center oe-mb-8">
         <div>
-          <h1 class="oe-text-3xl oe-font-semibold oe-text-gray-900">HR Dashboard</h1>
+          <h1 class="oe-text-3xl oe-font-semibold oe-text-gray-900">Manager Dashboard</h1>
           <p class="oe-text-gray-500">Manage employee onboarding and exit processes</p>
         </div>
         <button @click="fetchDashboardData" class="oe-bg-blue-600 oe-text-white oe-px-4 oe-py-2 oe-rounded-xl oe-text-sm hover:oe-bg-blue-700 transition-all">Refresh Data</button>
@@ -23,7 +23,7 @@
       </div>
     </div>
     <div v-else-if="loading" class="oe-flex oe-items-center oe-justify-center oe-h-screen">
-      <div class="oe-text-gray-400">Loading HR dashboard...</div>
+      <div class="oe-text-gray-400">Loading Manager dashboard...</div>
     </div>
   </div>
 </template>
@@ -50,7 +50,7 @@ const fetchDashboardData = async () => {
   loader.show()
   loading.value = true
   try {
-    const response = await call('/hr/dashboard')
+    const response = await call('/manager/dashboard')
     if (response) dashboardData.value = response
   } finally {
     loading.value = false

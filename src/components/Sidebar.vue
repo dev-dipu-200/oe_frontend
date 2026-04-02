@@ -49,7 +49,11 @@
             <div
               class="oe-w-8 oe-h-8 oe-rounded-full oe-bg-blue-500 oe-flex oe-items-center oe-justify-center oe-text-xs oe-font-bold"
             >
-              {{ (authStore.user.name || authStore.user.email || 'U')?.charAt(0)?.toUpperCase() }}
+              {{
+                (authStore.user.name || authStore.user.email || "U")
+                  ?.charAt(0)
+                  ?.toUpperCase()
+              }}
             </div>
             <div class="oe-overflow-hidden">
               <p class="oe-text-lg oe-font-semibold oe-text-white oe-truncate">
@@ -58,29 +62,16 @@
               <p class="oe-text-[15px] oe-text-gray-400 oe-truncate">
                 {{ authStore?.user?.email }}
               </p>
+             
             </div>
+             <Icon
+                @click="handleLogout"
+                icon="lucide:log-out"
+                class="oe-w-5 oe-h-5 oe-text-xl oe-text-gray-400 hover:oe-text-red-600 oe-transition-colors oe-mt-1"
+              />
           </div>
         </div>
-        <button
-          @click="handleLogout"
-          class="oe-mt-4 oe-w-full oe-flex oe-items-center oe-justify-center oe-gap-2 oe-px-3 oe-py-2.5 oe-rounded-xl oe-text-red-400 hover:oe-bg-gray-700 oe-transition-colors"
-        >
-          <svg
-            class="oe-w-5 oe-h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-            ></path>
-          </svg>
-          <span class="oe-text-sm oe-font-medium">Logout</span>
-        </button>
+       
       </div>
     </aside>
   </div>
@@ -90,12 +81,81 @@
 import { computed, h } from "vue";
 import { useAuthStore } from "~/stores/auth";
 import { useRouter } from "vue-router";
+import { Icon } from "@iconify/vue";
 
 // Simple icon components using SVG
-const HomeIcon = () => h('svg', { class: 'oe-w-5 oe-h-5', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' })]);
-const UsersIcon = () => h('svg', { class: 'oe-w-5 oe-h-5', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' })]);
-const ClipboardIcon = () => h('svg', { class: 'oe-w-5 oe-h-5', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4' })]);
-const BriefcaseIcon = () => h('svg', { class: 'oe-w-5 oe-h-5', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' })]);
+const HomeIcon = () =>
+  h(
+    "svg",
+    {
+      class: "oe-w-5 oe-h-5",
+      fill: "none",
+      stroke: "currentColor",
+      viewBox: "0 0 24 24",
+    },
+    [
+      h("path", {
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        "stroke-width": "2",
+        d: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6",
+      }),
+    ],
+  );
+const UsersIcon = () =>
+  h(
+    "svg",
+    {
+      class: "oe-w-5 oe-h-5",
+      fill: "none",
+      stroke: "currentColor",
+      viewBox: "0 0 24 24",
+    },
+    [
+      h("path", {
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        "stroke-width": "2",
+        d: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z",
+      }),
+    ],
+  );
+const ClipboardIcon = () =>
+  h(
+    "svg",
+    {
+      class: "oe-w-5 oe-h-5",
+      fill: "none",
+      stroke: "currentColor",
+      viewBox: "0 0 24 24",
+    },
+    [
+      h("path", {
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        "stroke-width": "2",
+        d: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4",
+      }),
+    ],
+  );
+const BriefcaseIcon = () =>
+  h(
+    "svg",
+    {
+      class: "oe-w-5 oe-h-5",
+      fill: "none",
+      stroke: "currentColor",
+      viewBox: "0 0 24 24",
+    },
+    [
+      h("path", {
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        "stroke-width": "2",
+        d: "M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
+      }),
+    ],
+  );
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -106,31 +166,67 @@ defineProps({
 defineEmits(["close"]);
 
 const allLinks = [
-  { to: '/super-admin/dashboard', label: 'Dashboard', icon: HomeIcon, roles: ['SUPER_ADMIN'] },
-  { to: '/admin/dashboard', label: 'Dashboard', icon: HomeIcon, roles: ['ADMIN'] },
-  { to: '/hr/dashboard', label: 'Dashboard', icon: HomeIcon, roles: ['HR'] },
-  { to: '/network/dashboard', label: 'Dashboard', icon: HomeIcon, roles: ['NETWORK'] },
-  { to: '/employee/dashboard', label: 'Dashboard', icon: HomeIcon, roles: ['EMPLOYEE'] },
-  
+  {
+    to: "/super-admin/dashboard",
+    label: "Dashboard",
+    icon: HomeIcon,
+    roles: ["SUPER_ADMIN"],
+  },
+  {
+    to: "/admin/dashboard",
+    label: "Dashboard",
+    icon: HomeIcon,
+    roles: ["ADMIN"],
+  },
+  { to: "/hr/dashboard", label: "Dashboard", icon: HomeIcon, roles: ["HR"] },
+  {
+    to: "/network/dashboard",
+    label: "Dashboard",
+    icon: HomeIcon,
+    roles: ["NETWORK"],
+  },
+  {
+    to: "/employee/dashboard",
+    label: "Dashboard",
+    icon: HomeIcon,
+    roles: ["EMPLOYEE"],
+  },
+
   // Super Admin specific
-  { to: '/super-admin/users', label: 'Users', icon: UsersIcon, roles: ['SUPER_ADMIN'] },
-  { to: '/super-admin/employees', label: 'Employees', icon: BriefcaseIcon, roles: ['SUPER_ADMIN'] },
-  
+  {
+    to: "/super-admin/users",
+    label: "Users",
+    icon: UsersIcon,
+    roles: ["SUPER_ADMIN"],
+  },
+  {
+    to: "/super-admin/employees",
+    label: "Employees",
+    icon: BriefcaseIcon,
+    roles: ["SUPER_ADMIN"],
+  },
+
   // HR specific
-  { to: '/hr/employees', label: 'Employees', icon: BriefcaseIcon, roles: ['HR'] },
-  { to: '/hr/tasks', label: 'My Tasks', icon: ClipboardIcon, roles: ['HR'] },
-  
+  {
+    to: "/hr/employees",
+    label: "Employees",
+    icon: BriefcaseIcon,
+    roles: ["HR"],
+  },
+  { to: "/tasks", label: "Tasks", icon: ClipboardIcon, roles: ["HR", "EMPLOYEE"] },
+  { to: "/onboarding", label: "Onboarding", icon: ClipboardIcon, roles: ["HR"] },
+  { to: "/exit", label: "Exit", icon: ClipboardIcon, roles: ["HR"] },
+
   // Employee specific
-  { to: '/employee/tasks', label: 'My Tasks', icon: ClipboardIcon, roles: ['EMPLOYEE'] },
 ];
 
 const filteredLinks = computed(() => {
   const role = authStore.user?.role;
-  return allLinks.filter(link => link.roles.includes(role));
+  return allLinks.filter((link) => link.roles.includes(role));
 });
 
 const handleLogout = async () => {
   await authStore.logout();
-  router.push('/login');
+  router.push("/login");
 };
 </script>

@@ -47,7 +47,6 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useLoaderStore } from '@/stores/loader'
 

@@ -12,6 +12,10 @@ import { onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 
+definePageMeta({
+  layout: 'default'
+})
+
 const authStore = useAuthStore()
 const router = useRouter()
 

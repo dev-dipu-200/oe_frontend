@@ -1,5 +1,9 @@
+import { useAuthStore } from '@/stores/auth'
+
 export function useApi() {
   const config = useRuntimeConfig()
+  const authStore = useAuthStore()
+  
   const call = async <T>(
     endpoint: string,
     options: {
@@ -7,8 +11,9 @@ export function useApi() {
       params?: Record<string, any>
       body?: any
       headers?: Record<string, string>
-      token?: string | null   
-      onError?: (err: any) => void 
+      token?: string | null
+      onError?: (err: any) => void
+      skipAuth?: boolean
     } = {}
   ): Promise<T | null> => {
     try {
@@ -32,8 +37,10 @@ export function useApi() {
         ...options.headers,
       }
 
-      if (options.token) {
-        headers['Authorization'] = `Bearer ${options.token}`
+      // Add authorization token if available and not skipped
+      const token = options.token !== undefined ? options.token : authStore.token
+      if (token && !options.skipAuth) {
+        headers['Authorization'] = `Bearer ${token}`
       }
 
       const response = await $fetch<T>(url, {

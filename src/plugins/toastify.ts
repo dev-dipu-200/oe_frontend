@@ -5,6 +5,9 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(Vue3Toastify, {
     autoClose: 3000,
     position: 'top-right',
-    theme: 'colored'
+    theme: 'colored',
+    duplicate: false,
+    hideProgressBar: true,
+    closeOnClick: true,
   } as ToastContainerOptions)
 })

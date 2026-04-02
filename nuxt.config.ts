@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   app: {
     head: {
-      title: "Nuxt",
+      title: "HR Onboarding & Exit Management System",
       htmlAttrs: {
         lang: "en",
       },
@@ -27,18 +27,9 @@ export default defineNuxtConfig({
     },
 
     server: {
-      // Allow your ngrok domain (and all hosts in dev)
-      allowedHosts: true,                    // Best for ngrok / custom domains in recent Vite
-      // allowedHosts: ["upturned-designed-juliette.ngrok-free.dev"], // Alternative if you prefer specific
-
-      hmr: {
-        protocol: "wss",
-        clientPort: 443,                     // Important when accessing via https ngrok (port 443)
-        // host: "upturned-designed-juliette.ngrok-free.dev", // Uncomment only if still having issues
-      },
-
+      allowedHosts: true,
       watch: {
-        usePolling: false,                   // Keep false unless you're in Docker/WSL
+        usePolling: false,
       },
     },
   },
@@ -47,5 +38,4 @@ export default defineNuxtConfig({
     host: "0.0.0.0",
     port: 3000,
   },
-  // === End of fixes ===
 })

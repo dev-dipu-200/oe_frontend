@@ -148,9 +148,6 @@ definePageMeta({
 
 const authStore = useAuthStore();
 const router = useRouter();
-
-const { call } = useApi();
-const toast = useToastStore();
 const email = ref("");
 const password = ref("");
 const loading = ref(false);
@@ -171,25 +168,10 @@ const handleLogin = async () => {
     });
 
     if (success) {
-      toast.addToast({
-        message: "Login successful!",
-        type: "success",
-      });
-
-      // ✅ Redirect based on role
       router.push(getDashboardRoute(authStore.user?.role));
-    } else {
-      toast.addToast({
-        message: "Login failed. Please check your credentials.",
-        type: "error",
-      });
     }
   } catch (error) {
     console.error(error);
-    toast.addToast({
-      message: "An error occurred during login.",
-      type: "error",
-    });
   } finally {
     loading.value = false;
   }

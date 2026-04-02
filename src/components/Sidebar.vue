@@ -213,9 +213,13 @@ const allLinks = [
     icon: BriefcaseIcon,
     roles: ["HR"],
   },
-  { to: "/tasks", label: "Tasks", icon: ClipboardIcon, roles: ["HR", "EMPLOYEE"] },
-  { to: "/onboarding", label: "Onboarding", icon: ClipboardIcon, roles: ["HR"] },
-  { to: "/exit", label: "Exit", icon: ClipboardIcon, roles: ["HR"] },
+
+  // UIUX Specific
+  { to: "/uiux/dashboard", label: "Dashboard", icon: HomeIcon, roles: ["UIUX_DESIGNER"] },
+
+  { to: "/tasks", label: "Tasks", icon: ClipboardIcon, roles: ["HR", "UIUX_DESIGNER"] },
+  { to: "/onboarding", label: "Onboarding", icon: ClipboardIcon, roles: ["HR", "SUPER_ADMIN", "UIUX_DESIGNER"] },
+  { to: "/exit", label: "Exit", icon: ClipboardIcon, roles: ["HR", "SUPER_ADMIN", "UIUX_DESIGNER"] },
 
   // Employee specific
 ];

@@ -23,28 +23,6 @@
       </button>
 
       <div class="oe-flex-1 oe-flex oe-items-center oe-gap-4">
-        <!-- Back Button -->
-        <button
-          v-if="showBackButton"
-          @click="goBack"
-          class="oe-p-2 oe-text-gray-600 hover:oe-bg-gray-100 oe-rounded-md"
-          title="Go back"
-        >
-          <svg
-            class="oe-w-5 oe-h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
-          </svg>
-        </button>
-        
         <h2 class="oe-text-xl oe-font-semibold oe-text-gray-800">Dashboard</h2>
       </div>
 
@@ -56,7 +34,7 @@
           <div
             class="oe-bg-blue-600 oe-text-white oe-px-3 oe-py-1 oe-rounded-lg oe-text-sm"
           >
-            HR
+            {{ authStore.user?.role || 'Guest' }}
           </div>
         </div>
 
@@ -112,108 +90,18 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, onMounted, onUnmounted } from "vue";
+import { computed } from "vue";
 import { useAuthStore } from "~/stores/auth";
-import { useRouter, useRoute } from 'vue-router'; // Import useRouter for redirection
+import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
-const router = useRouter(); // Initialize useRouter
-const route = useRoute();
+const router = useRouter();
 const userInitial = computed(() => (authStore.user?.name || authStore.user?.email || 'U').charAt(0).toUpperCase());
 
 defineEmits(["toggleSidebar"]);
 
-// Back button logic
-const showBackButton = ref(false);
-const historyLength = ref(0);
-
-const updateBackButton = () => {
-  // Show back button if we're not on the main dashboard for the user's role
-  const currentPath = route.path;
-  const userRole = authStore.user?.role;
-  
-  // Define main dashboard paths for each role
-  const mainDashboards = {
-    'SUPER_ADMIN': '/super-admin/dashboard',
-    'ADMIN': '/admin/dashboard',
-    'HR': '/hr/dashboard',
-    'MANAGER': '/manager/dashboard',
-    'NETWORK': '/network/dashboard',
-    'UIUX_DESIGNER': '/uiux/dashboard',
-    'EMPLOYEE': '/employee/dashboard'
-  };
-  
-  const mainDashboard = mainDashboards[userRole] || '/';
-  showBackButton.value = currentPath !== mainDashboard && currentPath !== '/';
-};
-
-const goBack = () => {
-  if (window.history.length > 1) {
-    router.back();
-  } else {
-    // If no history, go to main dashboard
-    const userRole = authStore.user?.role;
-    const mainDashboards = {
-      'SUPER_ADMIN': '/super-admin/dashboard',
-      'ADMIN': '/admin/dashboard',
-      'HR': '/hr/dashboard',
-      'MANAGER': '/manager/dashboard',
-      'NETWORK': '/network/dashboard',
-      'UIUX_DESIGNER': '/uiux/dashboard',
-      'EMPLOYEE': '/employee/dashboard'
-    };
-    const mainDashboard = mainDashboards[userRole] || '/';
-    router.push(mainDashboard);
-  }
-};
-
-// Prevent browser back button and reload
-const preventBackButton = (event) => {
-  // Store the current scroll position
-  sessionStorage.setItem('scrollPos', window.scrollY.toString());
-  
-  // Show confirmation dialog on page reload/close
-  if (event.type === 'beforeunload') {
-    event.preventDefault();
-    event.returnValue = '';
-    return '';
-  }
-};
-
-// Store the popstate handler reference for cleanup
-let popstateHandler = null;
-
 const handleLogout = async () => {
   await authStore.logout();
-  router.push('/login'); // Redirect to login page after logout
+  router.push('/login');
 };
-
-// Watch route changes to update back button visibility
-watch(() => route.path, () => {
-  updateBackButton();
-});
-
-onMounted(() => {
-  updateBackButton();
-  
-  // Add event listeners to prevent browser navigation
-  window.addEventListener('beforeunload', preventBackButton);
-  
-  // Create popstate handler
-  popstateHandler = (event) => {
-    // Prevent browser back button
-    event.preventDefault();
-    // Use our custom back button logic instead
-    goBack();
-  };
-  
-  window.addEventListener('popstate', popstateHandler);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('beforeunload', preventBackButton);
-  if (popstateHandler) {
-    window.removeEventListener('popstate', popstateHandler);
-  }
-});
 </script>

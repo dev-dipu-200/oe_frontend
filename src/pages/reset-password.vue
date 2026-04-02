@@ -81,7 +81,6 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRoute, useRouter } from 'vue-router'
 import { useToastStore } from '@/stores/toast'

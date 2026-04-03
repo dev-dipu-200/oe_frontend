@@ -127,7 +127,7 @@
               class="oe-w-full oe-rounded-2xl oe-border oe-border-slate-200 oe-px-4 oe-py-3 oe-text-sm focus:oe-border-blue-500 focus:oe-outline-none"
             >
               <option value="onboarding">Onboarding</option>
-              <option value="offboarding">Offboarding</option>
+              <option value="exit">Exit</option>
             </select>
           </div>
 
@@ -195,7 +195,7 @@
               <input
                 v-model.number="taskForm.task_order"
                 type="number"
-                min="0"
+                min="1"
                 required
                 class="oe-w-full oe-rounded-2xl oe-border oe-border-slate-200 oe-px-4 oe-py-3 oe-text-sm focus:oe-border-blue-500 focus:oe-outline-none"
               />
@@ -209,9 +209,10 @@
               >
                 <option value="SUPER_ADMIN">Super Admin</option>
                 <option value="HR">HR</option>
-                <option value="IT">IT</option>
-                <option value="EMPLOYEE">Employee</option>
+                <option value="ADMIN">ADMIN</option>
+                <option value="NETWORK">Network</option>
                 <option value="MANAGER">Manager</option>
+                <option value="UIUX_DESIGNER">UI/UX Designer</option>
               </select>
             </div>
           </div>
@@ -259,7 +260,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch } from "vue";
 import { usePhaseApi, type PhasePayload, type TaskPayload } from "@/apis/phases";
 import Dialog from "@/components/Dialog.vue";
 import { useToastStore } from "@/stores/toast";
@@ -273,14 +273,11 @@ const props = defineProps({
 
 const { listPhases, createPhase, updatePhase, createTask, listTasks } = usePhaseApi(props.basePath);
 const toastStore = useToastStore();
-
-/* STATE */
 const phases = ref<any[]>([]);
 const loading = ref(true);
 const submitting = ref(false);
 const activeProcessType = ref("onboarding");
 
-// Phase Form State
 const showPhaseDialog = ref(false);
 const editingId = ref<number | null>(null);
 const phaseForm = reactive<PhasePayload>({
@@ -290,11 +287,10 @@ const phaseForm = reactive<PhasePayload>({
   description: "",
 });
 
-// Task Form State
 const showTaskDialog = ref(false);
 const selectedPhase = ref<any>(null);
 const taskForm = reactive<TaskPayload>({
-  task_order: 0,
+  task_order: 1,
   task_name: "",
   description: "",
   assigned_role: "SUPER_ADMIN",
@@ -307,11 +303,10 @@ const fetchPhases = async () => {
   loading.value = true;
   try {
     const res = await listPhases(activeProcessType.value);
+    
     if (res.ok) {
-      // For each phase, also fetch its tasks
-      const phasesWithTasks = await Promise.all(res.data.map(async (phase: any) => {
-        const taskRes = await listTasks(phase.id);
-        return { ...phase, tasks: taskRes.ok ? taskRes.data : [] };
+      const phasesWithTasks = await Promise.all((res.data.phases || []).map(async (phase: any) => {
+        return { ...phase };
       }));
       phases.value = phasesWithTasks;
     } else {
@@ -367,7 +362,7 @@ const handlePhaseSubmit = async () => {
 /* TASK ACTIONS */
 const openAddTaskDialog = (phase: any) => {
   selectedPhase.value = phase;
-  taskForm.task_order = (phase.tasks?.length || 0);
+  taskForm.task_order = (phase.tasks?.length || 0) + 1;
   taskForm.task_name = "";
   taskForm.description = "";
   taskForm.assigned_role = props.basePath === 'hr' ? 'HR' : 'SUPER_ADMIN';

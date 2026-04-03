@@ -473,7 +473,7 @@ const editingEmployeeId = ref<number | string | null>(null);
 
 const createInitialForm = (): EmployeePayload => ({
   employee_code:
-    "D00" + (employees?.value?.length + 1)?.toString()?.padStart(3, "0"),
+    "D00" + (employees.value.length + 1).toString().padStart(3, "0"),
   first_name: "",
   last_name: "",
   email: "",
@@ -491,6 +491,12 @@ const createInitialForm = (): EmployeePayload => ({
 });
 
 const form = reactive<EmployeePayload>(createInitialForm());
+
+watch(() => employees.value.length, (newLength) => {
+  if (!isEditing.value) {
+    form.employee_code = "D00" + (newLength + 1).toString().padStart(3, "0");
+  }
+});
 
 const isEditing = computed(() => editingEmployeeId.value !== null);
 

@@ -34,14 +34,12 @@
           <div
             class="oe-bg-blue-600 oe-text-white oe-px-3 oe-py-1 oe-rounded-lg oe-text-sm"
           >
-            {{ authStore.user?.role || 'Guest' }}
+            {{ authStore.user?.role || "Guest" }}
           </div>
         </div>
 
         <!-- Notification -->
-        <button
-          class="oe-p-2 oe-text-gray-600 oe-rounded-full"
-        >
+        <button class="oe-p-2 oe-text-gray-600 oe-rounded-full">
           <div class="oe-relative">
             <svg
               class="oe-w-6 oe-h-6"
@@ -57,8 +55,12 @@
               />
             </svg>
             <span class="oe-absolute oe-top-0 oe-right-0 oe-flex oe-h-2 oe-w-2">
-              <span class="oe-animate-ping oe-absolute oe-inline-flex oe-h-full oe-w-full oe-rounded-full oe-bg-red-400 oe-opacity-75"></span>
-              <span class="oe-relative oe-inline-flex oe-rounded-full oe-h-2 oe-w-2 oe-bg-red-500"></span>
+              <span
+                class="oe-animate-ping oe-absolute oe-inline-flex oe-h-full oe-w-full oe-rounded-full oe-bg-red-400 oe-opacity-75"
+              ></span>
+              <span
+                class="oe-relative oe-inline-flex oe-rounded-full oe-h-2 oe-w-2 oe-bg-red-500"
+              ></span>
             </span>
           </div>
         </button>
@@ -92,16 +94,20 @@
 <script setup>
 import { computed } from "vue";
 import { useAuthStore } from "~/stores/auth";
-import { useRouter } from 'vue-router';
+import { useRouter } from "vue-router";
 
 const authStore = useAuthStore();
 const router = useRouter();
-const userInitial = computed(() => (authStore.user?.name || authStore.user?.email || 'U').charAt(0).toUpperCase());
+const userInitial = computed(() =>
+  (authStore.user?.name || authStore.user?.email || "U")
+    .charAt(0)
+    .toUpperCase(),
+);
 
 defineEmits(["toggleSidebar"]);
 
 const handleLogout = async () => {
   await authStore.logout();
-  router.push('/login');
+  router.push("/login");
 };
 </script>

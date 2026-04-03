@@ -62,16 +62,14 @@
               <p class="oe-text-[15px] oe-text-gray-400 oe-truncate">
                 {{ authStore?.user?.email }}
               </p>
-             
             </div>
-             <Icon
-                @click="handleLogout"
-                icon="lucide:log-out"
-                class="oe-w-5 oe-h-5 oe-text-xl oe-text-gray-400 hover:oe-text-red-600 oe-transition-colors oe-mt-1"
-              />
+            <Icon
+              @click="handleLogout"
+              icon="lucide:log-out"
+              class="oe-w-5 oe-h-5 oe-text-xl oe-text-gray-400 hover:oe-text-red-600 oe-transition-colors oe-mt-1"
+            />
           </div>
         </div>
-       
       </div>
     </aside>
   </div>
@@ -215,11 +213,31 @@ const allLinks = [
   },
 
   // UIUX Specific
-  { to: "/uiux/dashboard", label: "Dashboard", icon: HomeIcon, roles: ["UIUX_DESIGNER"] },
+  {
+    to: "/uiux/dashboard",
+    label: "Dashboard",
+    icon: HomeIcon,
+    roles: ["UIUX_DESIGNER"],
+  },
 
-  { to: "/tasks", label: "Tasks", icon: ClipboardIcon, roles: ["HR", "UIUX_DESIGNER"] },
-  { to: "/onboarding", label: "Onboarding", icon: ClipboardIcon, roles: ["HR", "SUPER_ADMIN", "UIUX_DESIGNER"] },
-  { to: "/exit", label: "Exit", icon: ClipboardIcon, roles: ["HR", "SUPER_ADMIN", "UIUX_DESIGNER"] },
+  {
+    to: "/tasks",
+    label: "Tasks",
+    icon: ClipboardIcon,
+    roles: ["HR", "UIUX_DESIGNER"],
+  },
+  {
+    to: "/onboarding",
+    label: "Onboarding",
+    icon: ClipboardIcon,
+    roles: ["HR", "SUPER_ADMIN", "UIUX_DESIGNER"],
+  },
+  {
+    to: "/exit",
+    label: "Exit",
+    icon: ClipboardIcon,
+    roles: ["HR", "SUPER_ADMIN", "UIUX_DESIGNER"],
+  },
 
   // Employee specific
 ];

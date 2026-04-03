@@ -120,8 +120,26 @@ export function useEmployeesApi() {
     }
   }
 
+  const getEmployee = async (basePath: string, employeeId: number | string) => {
+    let errorMessage = 'Failed to load employee details'
+
+    const response = await call(`${basePath}/${employeeId}`, {
+      method: 'GET',
+      onError: (error) => {
+        errorMessage = getMessage(error?.data, errorMessage)
+      }
+    })
+
+    return {
+      ok: !!response,
+      data: unwrapApiData(response),
+      message: response ? getMessage(response, 'Employee details loaded successfully') : errorMessage
+    }
+  }
+
   return {
     listEmployees,
+    getEmployee,
     createEmployee,
     updateEmployee
   }

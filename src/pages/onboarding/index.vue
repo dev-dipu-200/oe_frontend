@@ -39,14 +39,27 @@
       <div class="oe-flex oe-gap-4 oe-mb-8">
         <div class="oe-flex-1 oe-relative">
           <input
+            v-model="searchQuery"
             type="text"
             placeholder="Search employees..."
             class="oe-w-full oe-bg-white oe-border oe-border-gray-200 oe-rounded-2xl oe-pl-12 oe-py-3 oe-text-sm focus:oe-outline-none focus:oe-border-blue-500 oe-transition-colors"
           />
           <div
-            class="oe-absolute oe-left-5 oe-top-1/2 -translate-y-1/2 text-gray-400"
+            class="oe-absolute oe-left-5 oe-top-1/4 -translate-y-1/2 text-gray-400"
           >
-            🔍
+            <svg
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              class="oe-w-5 oe-h-5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
           </div>
         </div>
         <button
@@ -58,16 +71,37 @@
       </div>
 
       <!-- Employees List -->
-
-      <div v-for="employee in employees" :key="employee.id" class="oe-w-full">
+      <div
+        v-if="loadingEmployees"
+        class="oe-text-center oe-py-10 oe-text-gray-500"
+      >
+        Loading onboarding records...
+      </div>
+      <div
+        v-else-if="filteredEmployees.length === 0"
+        class="oe-text-center oe-py-10 oe-text-gray-500"
+      >
+        No onboarding records found.
+      </div>
+      <div
+        v-else
+        v-for="employee in filteredEmployees"
+        :key="employee.id"
+        class="oe-w-full"
+      >
         <div
-          class="oe-bg-white oe-rounded-3xl oe-overflow-hidden oe-mb-4 oe-border oe-transition-colors"
+          @click="selectEmployee(employee)"
+          class="oe-bg-white oe-rounded-3xl oe-overflow-hidden oe-mb-4 oe-border oe-transition-all cursor-pointer hover:oe-shadow-md"
+          :class="{
+            'oe-border-blue-500 oe-ring-2 oe-ring-blue-100':
+              selectedEmployee?.id === employee.id,
+          }"
         >
           <div class="oe-flex oe-justify-between">
             <div class="oe-flex oe-items-center oe-gap-4 oe-px-4 oe-py-3">
               <div
                 class="oe-w-11 oe-h-11 oe-rounded-2xl oe-flex oe-items-center oe-justify-center oe-text-lg oe-font-semibold flex-shrink-0"
-                :class="employee.avatarBg"
+                :class="employee.avatarBg || 'oe-bg-blue-100 oe-text-blue-700'"
               >
                 {{ employee.initials }}
               </div>
@@ -78,557 +112,595 @@
                 <p class="oe-text-sm oe-text-gray-500">{{ employee.role }}</p>
               </div>
             </div>
-             <div class="oe-text-right oe-px-5 oe-py-3">
-                <div class="oe-flex oe-items-center oe-gap-2 oe-justify-end">
-                  <span class="oe-text-gray-400 text-sm">📅</span>
-                  <span class="oe-text-sm oe-text-gray-500">{{
-                    employee.date
-                  }}</span>
-                </div>
-                <div class="oe-mt-2">
-                  <span
-                    :class="employee.statusClass"
-                    class="oe-px-4 oe-py-1 oe-text-xs oe-font-medium oe-rounded-full"
-                  >
-                    {{ employee.status }}
-                  </span>
-                </div>
-                <p class="oe-text-xs oe-text-gray-400 mt-1">
-                  {{ employee.phase }}
-                </p>
+            <div class="oe-text-right oe-px-5 oe-py-3">
+              <div class="oe-flex oe-items-center oe-gap-2 oe-justify-end">
+                <span class="oe-text-gray-400 text-sm">📅</span>
+                <span class="oe-text-sm oe-text-gray-500">{{
+                  employee.date
+                }}</span>
               </div>
+              <div class="oe-mt-2">
+                <span
+                  :class="employee.statusClass"
+                  class="oe-px-4 oe-py-1 oe-text-xs oe-font-medium oe-rounded-full"
+                >
+                  {{ employee.status }}
+                </span>
+              </div>
+              <p class="oe-text-xs oe-text-gray-400 mt-1">
+                {{ employee.phase }}
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Workflow Section -->
       <div
-        class="oe-bg-white oe-rounded-3xl oe-shadow-sm oe-p-8 oe-border oe-transition-colors"
+        v-if="selectedEmployee"
+        class="oe-bg-white oe-rounded-3xl oe-shadow-sm oe-p-8 oe-border oe-transition-colors oe-mt-8"
       >
-        <div class="oe-flex oe-justify-between oe-items-center oe-mb-6">
-          <div class="oe-flex oe-items-center oe-gap-3">
-            <span
-              class="oe-bg-blue-100 oe-text-blue-700 oe-px-4 oe-py-1.5 oe-rounded-lg oe-text-sm oe-font-medium"
-            >
-              Workflow: Priya Sharma
-            </span>
-            <span
-              class="oe-ml-2 oe-bg-blue-100 oe-text-blue-700 oe-px-4 oe-py-1.5 oe-rounded-lg oe-text-sm oe-font-medium"
-            >
-              Overall Progress
-            </span>
-          </div>
-          <div class="oe-text-sm oe-text-gray-500">
-            <span class="oe-font-medium"
-              >{{ totalCompletedTasks }}/{{ totalTasks }} tasks</span
-            >
-            <span class="oe-text-blue-600 ml-2"
-              >{{ overallProgress.toFixed(0) }}% complete</span
-            >
-          </div>
+        <div
+          v-if="loadingDetails"
+          class="oe-flex oe-h-40 oe-items-center oe-justify-center oe-text-gray-400"
+        >
+          Loading workflow details...
         </div>
-
-        <p class="oe-text-gray-600 mb-10">
-          Complete onboarding workflow from pre-joining to 15-day follow-up
-        </p>
-
-        <!-- Phases Grid - 6 columns each -->
-        <div class="oe-grid oe-grid-cols-1 lg:oe-grid-cols-12 oe-gap-6">
-          <!-- Phase 1 -->
-          <div class="lg:oe-col-span-6">
-            <div
-              class="oe-border oe-border-gray-200 oe-rounded-3xl overflow-hidden oe-transition-colors"
-              :class="{
-                'oe-border-emerald-200 oe-bg-emerald-50/10':
-                  phase1Progress === 100,
-              }"
-            >
-              <div
-                @click="togglePhase(1)"
-                class="oe-flex oe-items-center oe-justify-between oe-px-6 oe-py-5 cursor-pointer hover:oe-bg-gray-50"
+        <div v-else>
+          <div class="oe-flex oe-justify-between oe-items-center oe-mb-6">
+            <div class="oe-flex oe-items-center oe-gap-3">
+              <span
+                class="oe-bg-blue-100 oe-text-blue-700 oe-px-4 oe-py-1.5 oe-rounded-lg oe-text-sm oe-font-medium"
               >
-                <div class="oe-flex oe-items-center oe-gap-4">
-                  <div
-                    class="oe-w-8 oe-h-8 oe-rounded-2xl oe-flex oe-items-center oe-justify-center text-xl font-semibold"
-                    :class="
-                      phase1Progress === 100
-                        ? 'oe-bg-green-500 oe-text-white oe-size-8'
-                        : 'oe-bg-gray-100 oe-text-gray-600'
-                    "
-                  >
-                    <!-- {{ phase1Progress === 100 ? '' : '1' }} -->
-                    <span v-if="phase1Progress === 100">
-                      <svg
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        class="oe-w-5 oe-h-5"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </span>
-                  </div>
-                  <div>
-                    <p class="oe-font-semibold">Phase 1: Pre-Onboarding</p>
-                    <p class="oe-text-xs oe-text-gray-500">
-                      Post offer acceptance — T-2 working days before joining
-                    </p>
-                  </div>
-                </div>
-                <div class="oe-flex oe-items-center oe-gap-3">
-                  <span class="oe-text-sm oe-font-medium text-gray-500"
-                    >{{ phase1Completed }}/{{ phase1Tasks.length }}</span
-                  >
-                  <span
-                    class="oe-text-2xl transition-transform duration-200"
-                    :class="{ 'oe-rotate-180': openPhases[1] }"
-                    >▼</span
-                  >
-                </div>
-              </div>
+                Workflow: {{ selectedEmployee.name }}
+              </span>
+              <span
+                class="oe-ml-2 oe-bg-blue-100 oe-text-blue-700 oe-px-4 oe-py-1.5 oe-rounded-lg oe-text-sm oe-font-medium"
+              >
+                Overall Progress
+              </span>
+            </div>
+            <div class="oe-text-sm oe-text-gray-500 oe-gap-2 oe-flex oe-items-center">
+              <span class="oe-font-medium"
+                >{{ totalCompletedTasks }}/{{ totalTasks }} tasks</span
+              >
+              <span class="oe-text-blue-600 ml-2"
+                >{{ overallProgress.toFixed(0) }}% complete</span
+              >
+            </div>
+          </div>
 
-              <!-- Progress Bar -->
-              <div class="oe-px-6 oe-mb-4">
-                <div
-                  class="oe-h-2 oe-bg-gray-100 oe-rounded-full overflow-hidden"
-                >
-                  <div
-                    class="oe-h-full oe-bg-green-500 oe-transition-all oe-duration-500 oe-rounded-full"
-                    :style="{ width: phase1Progress + '%' }"
-                  ></div>
-                </div>
-              </div>
+          <p class="oe-text-gray-600 mb-10">
+            Complete onboarding workflow from pre-joining to 15-day follow-up
+          </p>
 
+          <!-- Phases Grid - 6 columns each -->
+          <div class="oe-grid oe-grid-cols-1 lg:oe-grid-cols-12 oe-gap-6">
+            <!-- Phase 1 -->
+            <div class="lg:oe-col-span-6">
               <div
-                v-if="openPhases[1]"
-                class="oe-px-6 oe-pb-6 oe-space-y-3 mt-4"
+                class="oe-border oe-border-gray-200 oe-rounded-3xl overflow-hidden oe-transition-colors"
+                :class="{
+                  'oe-border-emerald-200 oe-bg-emerald-50/10':
+                    phase1Progress === 100,
+                }"
               >
                 <div
-                  v-for="(task, index) in phase1Tasks"
-                  :key="task.id"
-                  @click="toggleTaskStatus(task)"
-                  class="oe-bg-gray-50 oe-px-5 oe-py-4 oe-rounded-2xl oe-flex oe-justify-between oe-items-center cursor-pointer hover:oe-bg-gray-100 transition-colors"
+                  @click="togglePhase(1)"
+                  class="oe-flex oe-items-center oe-justify-between oe-px-6 oe-py-5 cursor-pointer hover:oe-bg-gray-50"
                 >
-                  <div class="oe-flex oe-items-center oe-gap-3">
-                    <span
-                      class="oe-flex oe-items-center oe-justify-center oe-w-4 oe-h-4 oe-border oe-rounded-full transition-colors"
+                  <div class="oe-flex oe-items-center oe-gap-4">
+                    <div
+                      class="oe-w-8 oe-h-8 oe-rounded-2xl oe-flex oe-items-center oe-justify-center text-xl font-semibold"
                       :class="
-                        task.status === 'Done'
-                          ? 'oe-rounded-full oe-border-green-500 oe-text-green-500'
-                          : 'oe-border-gray-300'
+                        phase1Progress === 100
+                          ? 'oe-bg-green-500 oe-text-white oe-size-8'
+                          : 'oe-bg-gray-100 oe-text-gray-600'
                       "
                     >
-                      <svg
-                        v-if="task.status === 'Done'"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        class="oe-w-4 oe-h-4"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </span>
+                      <span v-if="phase1Progress === 100">
+                        <svg
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          class="oe-w-5 oe-h-5"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </span>
+                      <span v-else>1</span>
+                    </div>
                     <div>
-                      <p
-                        class="oe-font-medium text-sm"
-                        :class="{
-                          'oe-text-gray-400 oe-line-through':
-                            task.status === 'Done',
-                        }"
-                      >
-                        {{ task.title }}
+                      <p class="oe-font-semibold">
+                        Phase 1: {{ phase1Name || "Pre-Onboarding" }}
                       </p>
-                      <p
-                        v-if="task.subtitle"
-                        class="oe-text-xs oe-text-gray-500"
-                      >
-                        {{ task.subtitle }}
+                      <p class="oe-text-xs oe-text-gray-500">
+                        {{
+                          phase1Description ||
+                          "Post offer acceptance — T-2 working days before joining"
+                        }}
                       </p>
                     </div>
                   </div>
                   <div class="oe-flex oe-items-center oe-gap-3">
-                    <span class="oe-text-xs oe-text-gray-500">{{
-                      task.assigned
-                    }}</span>
-                    <TaskStatusBadge
-                      :status="task.status"
-                      @change="
-                        (newStatus) =>
-                          updateTaskStatus(phase1Tasks, index, newStatus)
-                      "
-                    />
+                    <span class="oe-text-sm oe-font-medium text-gray-500"
+                      >{{ phase1Completed }}/{{ phase1Tasks.length }}</span
+                    >
+                    <span
+                      class="oe-text-2xl transition-transform duration-200"
+                      :class="{ 'oe-rotate-180': openPhases[1] }"
+                      >▼</span
+                    >
+                  </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="oe-px-6 oe-mb-4">
+                  <div
+                    class="oe-h-2 oe-bg-gray-100 oe-rounded-full overflow-hidden"
+                  >
+                    <div
+                      class="oe-h-full oe-bg-green-500 oe-transition-all oe-duration-500 oe-rounded-full"
+                      :style="{ width: phase1Progress + '%' }"
+                    ></div>
+                  </div>
+                </div>
+
+                <div
+                  v-if="openPhases[1]"
+                  class="oe-px-6 oe-pb-6 oe-space-y-3 mt-4"
+                >
+                  <div
+                    v-for="(task, index) in phase1Tasks"
+                    :key="task.id"
+                    @click="toggleTaskStatus(task)"
+                    class="oe-bg-gray-50 oe-px-5 oe-py-4 oe-rounded-2xl oe-flex oe-justify-between oe-items-center cursor-pointer hover:oe-bg-gray-100 transition-colors"
+                  >
+                    <div class="oe-flex oe-items-center oe-gap-3">
+                      <span
+                        class="oe-flex oe-items-center oe-justify-center oe-w-4 oe-h-4 oe-border oe-rounded-full transition-colors"
+                        :class="
+                          task.status === 'Done'
+                            ? 'oe-rounded-full oe-border-green-500 oe-text-green-500'
+                            : 'oe-border-gray-300'
+                        "
+                      >
+                        <svg
+                          v-if="task.status === 'Done'"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          class="oe-w-4 oe-h-4"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </span>
+                      <div>
+                        <p
+                          class="oe-font-medium text-sm"
+                          :class="{
+                            'oe-text-gray-400 oe-line-through':
+                              task.status === 'Done',
+                          }"
+                        >
+                          {{ task.title }}
+                        </p>
+                        <p
+                          v-if="task.subtitle"
+                          class="oe-text-xs oe-text-gray-500"
+                        >
+                          {{ task.subtitle }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="oe-flex oe-items-center oe-gap-3">
+                      <span class="oe-text-xs oe-text-gray-500">{{
+                        task.assigned
+                      }}</span>
+                      <TaskStatusBadge
+                        :status="task.status"
+                        @change="
+                          (newStatus) =>
+                            updateTaskStatus(phase1Tasks, index, newStatus)
+                        "
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Phase 2 -->
-          <div class="lg:oe-col-span-6">
-            <div
-              class="oe-border oe-border-gray-200 oe-rounded-3xl overflow-hidden oe-transition-colors"
-              :class="{
-                'oe-border-emerald-200 oe-bg-emerald-50/10':
-                  phase2Progress === 100,
-              }"
-            >
+            <!-- Phase 2 -->
+            <div class="lg:oe-col-span-6">
               <div
-                @click="togglePhase(2)"
-                class="oe-flex oe-items-center oe-justify-between oe-px-6 oe-py-5 cursor-pointer hover:oe-bg-gray-50"
-              >
-                <div class="oe-flex oe-items-center oe-gap-4">
-                  <div
-                    class="oe-w-8 oe-h-8 oe-rounded-2xl oe-flex oe-items-center oe-justify-center text-xl font-semibold"
-                    :class="
-                      phase2Progress === 100
-                        ? 'oe-bg-emerald-100 oe-text-emerald-600'
-                        : 'oe-bg-blue-600 oe-text-white'
-                    "
-                  >
-                    {{ phase2Progress === 100 ? "✅" : "2" }}
-                  </div>
-                  <div>
-                    <p class="oe-font-semibold">
-                      Phase 2: Day 1 – Onboarding Day
-                    </p>
-                    <p class="oe-text-xs oe-text-gray-500">
-                      Documentation, IT setup, and welcome activities
-                    </p>
-                  </div>
-                </div>
-                <div class="oe-flex oe-items-center oe-gap-3">
-                  <span class="oe-text-sm oe-font-medium text-gray-500"
-                    >{{ phase2Completed }}/{{ phase2Tasks.length }}</span
-                  >
-                  <span
-                    class="oe-text-2xl transition-transform duration-200"
-                    :class="{ 'oe-rotate-180': openPhases[2] }"
-                    >▼</span
-                  >
-                </div>
-              </div>
-
-              <!-- Progress Bar -->
-              <div class="oe-px-6 oe-mb-4">
-                <div
-                  class="oe-h-2 oe-bg-gray-100 oe-rounded-full overflow-hidden"
-                >
-                  <div
-                    class="oe-h-full oe-bg-green-500 oe-transition-all oe-duration-500 oe-rounded-full"
-                    :style="{ width: phase2Progress + '%' }"
-                  ></div>
-                </div>
-              </div>
-
-              <div
-                v-if="openPhases[2]"
-                class="oe-px-6 oe-pb-6 oe-space-y-3 mt-4"
+                class="oe-border oe-border-gray-200 oe-rounded-3xl overflow-hidden oe-transition-colors"
+                :class="{
+                  'oe-border-emerald-200 oe-bg-emerald-50/10':
+                    phase2Progress === 100,
+                }"
               >
                 <div
-                  v-for="(task, index) in phase2Tasks"
-                  :key="task.id"
-                  @click="toggleTaskStatus(task)"
-                  class="oe-bg-gray-50 oe-px-5 oe-py-4 oe-rounded-2xl oe-flex oe-justify-between oe-items-center cursor-pointer hover:oe-bg-gray-100 transition-colors"
+                  @click="togglePhase(2)"
+                  class="oe-flex oe-items-center oe-justify-between oe-px-6 oe-py-5 cursor-pointer hover:oe-bg-gray-50"
                 >
-                  <div class="oe-flex oe-items-center oe-gap-3">
-                    <span
-                      class="oe-flex oe-items-center oe-justify-center oe-w-4 oe-h-4 oe-border oe-rounded-full transition-colors"
+                  <div class="oe-flex oe-items-center oe-gap-4">
+                    <div
+                      class="oe-w-8 oe-h-8 oe-rounded-2xl oe-flex oe-items-center oe-justify-center text-xl font-semibold"
                       :class="
-                        task.status === 'Done'
-                          ? 'oe-rounded-full oe-border-green-500 oe-text-green-500'
-                          : 'oe-border-gray-300'
+                        phase2Progress === 100
+                          ? 'oe-bg-emerald-100 oe-text-emerald-600'
+                          : 'oe-bg-blue-600 oe-text-white'
                       "
                     >
-                      <svg
-                        v-if="task.status === 'Done'"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        class="oe-w-4 oe-h-4"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </span>
+                      {{ phase2Progress === 100 ? "✅" : "2" }}
+                    </div>
                     <div>
-                      <p
-                        class="oe-font-medium text-sm"
-                        :class="{
-                          'oe-text-gray-400 oe-line-through':
-                            task.status === 'Done',
-                        }"
-                      >
-                        {{ task.title }}
+                      <p class="oe-font-semibold">
+                        Phase 2: {{ phase2Name || "Day 1 – Onboarding Day" }}
                       </p>
-                      <p
-                        v-if="task.subtitle"
-                        class="oe-text-xs oe-text-gray-500"
-                      >
-                        {{ task.subtitle }}
+                      <p class="oe-text-xs oe-text-gray-500">
+                        {{
+                          phase2Description ||
+                          "Documentation, IT setup, and welcome activities"
+                        }}
                       </p>
                     </div>
                   </div>
                   <div class="oe-flex oe-items-center oe-gap-3">
-                    <span class="oe-text-xs oe-text-gray-500">{{
-                      task.assigned
-                    }}</span>
-                    <TaskStatusBadge
-                      :status="task.status"
-                      @change="
-                        (newStatus) =>
-                          updateTaskStatus(phase2Tasks, index, newStatus)
-                      "
-                    />
+                    <span class="oe-text-sm oe-font-medium text-gray-500"
+                      >{{ phase2Completed }}/{{ phase2Tasks.length }}</span
+                    >
+                    <span
+                      class="oe-text-2xl transition-transform duration-200"
+                      :class="{ 'oe-rotate-180': openPhases[2] }"
+                      >▼</span
+                    >
+                  </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="oe-px-6 oe-mb-4">
+                  <div
+                    class="oe-h-2 oe-bg-gray-100 oe-rounded-full overflow-hidden"
+                  >
+                    <div
+                      class="oe-h-full oe-bg-green-500 oe-transition-all oe-duration-500 oe-rounded-full"
+                      :style="{ width: phase2Progress + '%' }"
+                    ></div>
+                  </div>
+                </div>
+
+                <div
+                  v-if="openPhases[2]"
+                  class="oe-px-6 oe-pb-6 oe-space-y-3 mt-4"
+                >
+                  <div
+                    v-for="(task, index) in phase2Tasks"
+                    :key="task.id"
+                    @click="toggleTaskStatus(task)"
+                    class="oe-bg-gray-50 oe-px-5 oe-py-4 oe-rounded-2xl oe-flex oe-justify-between oe-items-center cursor-pointer hover:oe-bg-gray-100 transition-colors"
+                  >
+                    <div class="oe-flex oe-items-center oe-gap-3">
+                      <span
+                        class="oe-flex oe-items-center oe-justify-center oe-w-4 oe-h-4 oe-border oe-rounded-full transition-colors"
+                        :class="
+                          task.status === 'Done'
+                            ? 'oe-rounded-full oe-border-green-500 oe-text-green-500'
+                            : 'oe-border-gray-300'
+                        "
+                      >
+                        <svg
+                          v-if="task.status === 'Done'"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          class="oe-w-4 oe-h-4"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </span>
+                      <div>
+                        <p
+                          class="oe-font-medium text-sm"
+                          :class="{
+                            'oe-text-gray-400 oe-line-through':
+                              task.status === 'Done',
+                          }"
+                        >
+                          {{ task.title }}
+                        </p>
+                        <p
+                          v-if="task.subtitle"
+                          class="oe-text-xs oe-text-gray-500"
+                        >
+                          {{ task.subtitle }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="oe-flex oe-items-center oe-gap-3">
+                      <span class="oe-text-xs oe-text-gray-500">{{
+                        task.assigned
+                      }}</span>
+                      <TaskStatusBadge
+                        :status="task.status"
+                        @change="
+                          (newStatus) =>
+                            updateTaskStatus(phase2Tasks, index, newStatus)
+                        "
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Phase 3 -->
-          <div class="lg:oe-col-span-6">
-            <div
-              class="oe-border oe-border-gray-200 oe-rounded-3xl overflow-hidden oe-transition-colors"
-              :class="{
-                'oe-border-emerald-200 oe-bg-emerald-50/10':
-                  phase3Progress === 100,
-              }"
-            >
+            <!-- Phase 3 -->
+            <div class="lg:oe-col-span-6">
               <div
-                @click="togglePhase(3)"
-                class="oe-flex oe-items-center oe-justify-between oe-px-6 oe-py-5 cursor-pointer hover:oe-bg-gray-50"
-              >
-                <div class="oe-flex oe-items-center oe-gap-4">
-                  <div
-                    class="oe-w-8 oe-h-8 oe-rounded-2xl oe-flex oe-items-center oe-justify-center text-xl font-semibold"
-                    :class="
-                      phase3Progress === 100
-                        ? 'oe-bg-emerald-100 oe-text-emerald-600'
-                        : 'oe-bg-purple-600 oe-text-white'
-                    "
-                  >
-                    {{ phase3Progress === 100 ? "✅" : "3" }}
-                  </div>
-                  <div>
-                    <p class="oe-font-semibold">Phase 3: Knowledge Transfer</p>
-                    <p class="oe-text-xs oe-text-gray-500">
-                      Project handover and team introduction
-                    </p>
-                  </div>
-                </div>
-                <div class="oe-flex oe-items-center oe-gap-3">
-                  <span class="oe-text-sm oe-font-medium text-gray-500"
-                    >{{ phase3Completed }}/{{ phase3Tasks.length }}</span
-                  >
-                  <span
-                    class="oe-text-2xl transition-transform duration-200"
-                    :class="{ 'oe-rotate-180': openPhases[3] }"
-                    >▼</span
-                  >
-                </div>
-              </div>
-
-              <!-- Progress Bar -->
-              <div class="oe-px-6 oe-mb-4">
-                <div
-                  class="oe-h-2 oe-bg-gray-100 oe-rounded-full overflow-hidden"
-                >
-                  <div
-                    class="oe-h-full oe-bg-green-500 oe-transition-all oe-duration-500 oe-rounded-full"
-                    :style="{ width: phase3Progress + '%' }"
-                  ></div>
-                </div>
-              </div>
-
-              <div
-                v-if="openPhases[3]"
-                class="oe-px-6 oe-pb-6 oe-space-y-3 mt-4"
+                class="oe-border oe-border-gray-200 oe-rounded-3xl overflow-hidden oe-transition-colors"
+                :class="{
+                  'oe-border-emerald-200 oe-bg-emerald-50/10':
+                    phase3Progress === 100,
+                }"
               >
                 <div
-                  v-for="(task, index) in phase3Tasks"
-                  :key="task.id"
-                  @click="toggleTaskStatus(task)"
-                  class="oe-bg-gray-50 oe-px-5 oe-py-4 oe-rounded-2xl oe-flex oe-justify-between oe-items-center cursor-pointer hover:oe-bg-gray-100 transition-colors"
+                  @click="togglePhase(3)"
+                  class="oe-flex oe-items-center oe-justify-between oe-px-6 oe-py-5 cursor-pointer hover:oe-bg-gray-50"
                 >
-                  <div class="oe-flex oe-items-center oe-gap-3">
-                    <span
-                      class="oe-flex oe-items-center oe-justify-center oe-w-4 oe-h-4 oe-border oe-rounded-full transition-colors"
+                  <div class="oe-flex oe-items-center oe-gap-4">
+                    <div
+                      class="oe-w-8 oe-h-8 oe-rounded-2xl oe-flex oe-items-center oe-justify-center text-xl font-semibold"
                       :class="
-                        task.status === 'Done'
-                          ? 'oe-rounded-full oe-border-green-500 oe-text-green-500'
-                          : 'oe-border-gray-300'
+                        phase3Progress === 100
+                          ? 'oe-bg-emerald-100 oe-text-emerald-600'
+                          : 'oe-bg-purple-600 oe-text-white'
                       "
                     >
-                      <svg
-                        v-if="task.status === 'Done'"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        class="oe-w-4 oe-h-4"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </span>
+                      {{ phase3Progress === 100 ? "✅" : "3" }}
+                    </div>
                     <div>
-                      <p
-                        class="oe-font-medium text-sm"
-                        :class="{
-                          'oe-text-gray-400 oe-line-through':
-                            task.status === 'Done',
-                        }"
-                      >
-                        {{ task.title }}
+                      <p class="oe-font-semibold">
+                        Phase 3: {{ phase3Name || "Knowledge Transfer" }}
+                      </p>
+                      <p class="oe-text-xs oe-text-gray-500">
+                        {{
+                          phase3Description ||
+                          "Project handover and team introduction"
+                        }}
                       </p>
                     </div>
                   </div>
                   <div class="oe-flex oe-items-center oe-gap-3">
-                    <span class="oe-text-xs oe-text-gray-500">{{
-                      task.assigned
-                    }}</span>
-                    <TaskStatusBadge
-                      :status="task.status"
-                      @change="
-                        (newStatus) =>
-                          updateTaskStatus(phase3Tasks, index, newStatus)
-                      "
-                    />
+                    <span class="oe-text-sm oe-font-medium text-gray-500"
+                      >{{ phase3Completed }}/{{ phase3Tasks.length }}</span
+                    >
+                    <span
+                      class="oe-text-2xl transition-transform duration-200"
+                      :class="{ 'oe-rotate-180': openPhases[3] }"
+                      >▼</span
+                    >
+                  </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="oe-px-6 oe-mb-4">
+                  <div
+                    class="oe-h-2 oe-bg-gray-100 oe-rounded-full overflow-hidden"
+                  >
+                    <div
+                      class="oe-h-full oe-bg-green-500 oe-transition-all oe-duration-500 oe-rounded-full"
+                      :style="{ width: phase3Progress + '%' }"
+                    ></div>
+                  </div>
+                </div>
+
+                <div
+                  v-if="openPhases[3]"
+                  class="oe-px-6 oe-pb-6 oe-space-y-3 mt-4"
+                >
+                  <div
+                    v-for="(task, index) in phase3Tasks"
+                    :key="task.id"
+                    @click="toggleTaskStatus(task)"
+                    class="oe-bg-gray-50 oe-px-5 oe-py-4 oe-rounded-2xl oe-flex oe-justify-between oe-items-center cursor-pointer hover:oe-bg-gray-100 transition-colors"
+                  >
+                    <div class="oe-flex oe-items-center oe-gap-3">
+                      <span
+                        class="oe-flex oe-items-center oe-justify-center oe-w-4 oe-h-4 oe-border oe-rounded-full transition-colors"
+                        :class="
+                          task.status === 'Done'
+                            ? 'oe-rounded-full oe-border-green-500 oe-text-green-500'
+                            : 'oe-border-gray-300'
+                        "
+                      >
+                        <svg
+                          v-if="task.status === 'Done'"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          class="oe-w-4 oe-h-4"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </span>
+                      <div>
+                        <p
+                          class="oe-font-medium text-sm"
+                          :class="{
+                            'oe-text-gray-400 oe-line-through':
+                              task.status === 'Done',
+                          }"
+                        >
+                          {{ task.title }}
+                        </p>
+                        <p
+                          v-if="task.subtitle"
+                          class="oe-text-xs oe-text-gray-500"
+                        >
+                          {{ task.subtitle }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="oe-flex oe-items-center oe-gap-3">
+                      <span class="oe-text-xs oe-text-gray-500">{{
+                        task.assigned
+                      }}</span>
+                      <TaskStatusBadge
+                        :status="task.status"
+                        @change="
+                          (newStatus) =>
+                            updateTaskStatus(phase3Tasks, index, newStatus)
+                        "
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Phase 4 -->
-          <div class="lg:oe-col-span-6">
-            <div
-              class="oe-border oe-border-gray-200 oe-rounded-3xl overflow-hidden oe-transition-colors"
-              :class="{
-                'oe-border-emerald-200 oe-bg-emerald-50/10':
-                  phase4Progress === 100,
-              }"
-            >
+            <!-- Phase 4 -->
+            <div class="lg:oe-col-span-6">
               <div
-                @click="togglePhase(4)"
-                class="oe-flex oe-items-center oe-justify-between oe-px-6 oe-py-5 cursor-pointer hover:oe-bg-gray-50"
-              >
-                <div class="oe-flex oe-items-center oe-gap-4">
-                  <div
-                    class="oe-w-8 oe-h-8 oe-rounded-2xl oe-flex oe-items-center oe-justify-center text-xl font-semibold"
-                    :class="
-                      phase4Progress === 100
-                        ? 'oe-bg-emerald-100 oe-text-emerald-600'
-                        : 'oe-bg-amber-600 oe-text-white'
-                    "
-                  >
-                    {{ phase4Progress === 100 ? "✅" : "4" }}
-                  </div>
-                  <div>
-                    <p class="oe-font-semibold">Phase 4: 15-Day Follow-up</p>
-                    <p class="oe-text-xs oe-text-gray-500">
-                      Feedback and integration checks
-                    </p>
-                  </div>
-                </div>
-                <div class="oe-flex oe-items-center oe-gap-3">
-                  <span class="oe-text-sm oe-font-medium text-gray-500"
-                    >{{ phase4Completed }}/{{ phase4Tasks.length }}</span
-                  >
-                  <span
-                    class="oe-text-2xl transition-transform duration-200"
-                    :class="{ 'oe-rotate-180': openPhases[4] }"
-                    >▼</span
-                  >
-                </div>
-              </div>
-
-              <!-- Progress Bar -->
-              <div class="oe-px-6 oe-mb-4">
-                <div
-                  class="oe-h-2 oe-bg-gray-100 oe-rounded-full overflow-hidden"
-                >
-                  <div
-                    class="oe-h-full oe-bg-green-500 oe-transition-all oe-duration-500 oe-rounded-full"
-                    :style="{ width: phase4Progress + '%' }"
-                  ></div>
-                </div>
-              </div>
-
-              <div
-                v-if="openPhases[4]"
-                class="oe-px-6 oe-pb-6 oe-space-y-3 mt-4"
+                class="oe-border oe-border-gray-200 oe-rounded-3xl overflow-hidden oe-transition-colors"
+                :class="{
+                  'oe-border-emerald-200 oe-bg-emerald-50/10':
+                    phase4Progress === 100,
+                }"
               >
                 <div
-                  v-for="(task, index) in phase4Tasks"
-                  :key="task.id"
-                  @click="toggleTaskStatus(task)"
-                  class="oe-bg-gray-50 oe-px-5 oe-py-4 oe-rounded-2xl oe-flex oe-justify-between oe-items-center cursor-pointer hover:oe-bg-gray-100 transition-colors"
+                  @click="togglePhase(4)"
+                  class="oe-flex oe-items-center oe-justify-between oe-px-6 oe-py-5 cursor-pointer hover:oe-bg-gray-50"
                 >
-                  <div class="oe-flex oe-items-center oe-gap-3">
-                    <span
-                      class="oe-flex oe-items-center oe-justify-center oe-w-4 oe-h-4 oe-border oe-rounded-full transition-colors"
+                  <div class="oe-flex oe-items-center oe-gap-4">
+                    <div
+                      class="oe-w-8 oe-h-8 oe-rounded-2xl oe-flex oe-items-center oe-justify-center text-xl font-semibold"
                       :class="
-                        task.status === 'Done'
-                          ? 'oe-rounded-full oe-border-green-500 oe-text-green-500'
-                          : 'oe-border-gray-300'
+                        phase4Progress === 100
+                          ? 'oe-bg-emerald-100 oe-text-emerald-600'
+                          : 'oe-bg-amber-600 oe-text-white'
                       "
                     >
-                      <svg
-                        v-if="task.status === 'Done'"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        class="oe-w-4 oe-h-4"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </span>
+                      {{ phase4Progress === 100 ? "✅" : "4" }}
+                    </div>
                     <div>
-                      <p
-                        class="oe-font-medium text-sm"
-                        :class="{
-                          'oe-text-gray-400 oe-line-through':
-                            task.status === 'Done',
-                        }"
-                      >
-                        {{ task.title }}
+                      <p class="oe-font-semibold">
+                        Phase 4: {{ phase4Name || "15-Day Follow-up" }}
+                      </p>
+                      <p class="oe-text-xs oe-text-gray-500">
+                        {{
+                          phase4Description || "Feedback and integration checks"
+                        }}
                       </p>
                     </div>
                   </div>
                   <div class="oe-flex oe-items-center oe-gap-3">
-                    <span class="oe-text-xs oe-text-gray-500">{{
-                      task.assigned
-                    }}</span>
-                    <TaskStatusBadge
-                      :status="task.status"
-                      @change="
-                        (newStatus) =>
-                          updateTaskStatus(phase4Tasks, index, newStatus)
-                      "
-                    />
+                    <span class="oe-text-sm oe-font-medium text-gray-500"
+                      >{{ phase4Completed }}/{{ phase4Tasks.length }}</span
+                    >
+                    <span
+                      class="oe-text-2xl transition-transform duration-200"
+                      :class="{ 'oe-rotate-180': openPhases[4] }"
+                      >▼</span
+                    >
+                  </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="oe-px-6 oe-mb-4">
+                  <div
+                    class="oe-h-2 oe-bg-gray-100 oe-rounded-full overflow-hidden"
+                  >
+                    <div
+                      class="oe-h-full oe-bg-green-500 oe-transition-all oe-duration-500 oe-rounded-full"
+                      :style="{ width: phase4Progress + '%' }"
+                    ></div>
+                  </div>
+                </div>
+
+                <div
+                  v-if="openPhases[4]"
+                  class="oe-px-6 oe-pb-6 oe-space-y-3 mt-4"
+                >
+                  <div
+                    v-for="(task, index) in phase4Tasks"
+                    :key="task.id"
+                    @click="toggleTaskStatus(task)"
+                    class="oe-bg-gray-50 oe-px-5 oe-py-4 oe-rounded-2xl oe-flex oe-justify-between oe-items-center cursor-pointer hover:oe-bg-gray-100 transition-colors"
+                  >
+                    <div class="oe-flex oe-items-center oe-gap-3">
+                      <span
+                        class="oe-flex oe-items-center oe-justify-center oe-w-4 oe-h-4 oe-border oe-rounded-full transition-colors"
+                        :class="
+                          task.status === 'Done'
+                            ? 'oe-rounded-full oe-border-green-500 oe-text-green-500'
+                            : 'oe-border-gray-300'
+                        "
+                      >
+                        <svg
+                          v-if="task.status === 'Done'"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          class="oe-w-4 oe-h-4"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </span>
+                      <div>
+                        <p
+                          class="oe-font-medium text-sm"
+                          :class="{
+                            'oe-text-gray-400 oe-line-through':
+                              task.status === 'Done',
+                          }"
+                        >
+                          {{ task.title }}
+                        </p>
+                        <p
+                          v-if="task.subtitle"
+                          class="oe-text-xs oe-text-gray-500"
+                        >
+                          {{ task.subtitle }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="oe-flex oe-items-center oe-gap-3">
+                      <span class="oe-text-xs oe-text-gray-500">{{
+                        task.assigned
+                      }}</span>
+                      <TaskStatusBadge
+                        :status="task.status"
+                        @change="
+                          (newStatus) =>
+                            updateTaskStatus(phase4Tasks, index, newStatus)
+                        "
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -641,6 +713,17 @@
 </template>
 
 <script setup>
+import { useEmployeesApi } from "@/apis/employees";
+import { useAuthStore } from "@/stores/auth";
+
+const { listEmployees, getEmployee } = useEmployeesApi();
+const authStore = useAuthStore();
+
+const loadingEmployees = ref(true);
+const loadingDetails = ref(false);
+const searchQuery = ref("");
+const allEmployees = ref([]);
+const selectedEmployee = ref(null);
 
 const openPhases = ref({
   1: true,
@@ -653,220 +736,180 @@ const togglePhase = (phase) => {
   openPhases.value[phase] = !openPhases.value[phase];
 };
 
-// Phase 1 Tasks
-const phase1Tasks = ref([
-  {
-    id: 1,
-    title: "Create pre-joining record in system",
-    assigned: "System",
-    status: "Done",
-  },
-  {
-    id: 2,
-    title: "Send Teams invite to stakeholders & management",
-    subtitle: "Internal team notification for readiness",
-    assigned: "HR",
-    status: "Done",
-  },
-  {
-    id: 3,
-    title: "System preparation assigned",
-    assigned: "Shivam",
-    status: "Done",
-  },
-  {
-    id: 4,
-    title: "Seating arrangement, onboarding kit & forms printing",
-    assigned: "Ankur",
-    status: "Done",
-  },
-  {
-    id: 5,
-    title: "Send joining confirmation email to candidate",
-    subtitle: "Includes: joining date, reporting time...",
-    assigned: "HR",
-    status: "Done",
-  },
-]);
+// Phase Tasks and Info
+const phase1Name = ref("");
+const phase1Description = ref("");
+const phase1Tasks = ref([]);
 
-// Phase 2 Tasks
-const phase2Tasks = ref([
-  {
-    id: 1,
-    title: "Provide & collect joining forms",
-    assigned: "HR",
-    status: "Done",
-  },
-  {
-    id: 2,
-    title: "Provide Laptop Agreement form",
-    assigned: "Server Team",
-    status: "Done",
-  },
-  {
-    id: 3,
-    title: "Verify all submitted documents (hard copies, self-attested)",
-    assigned: "HR",
-    status: "In Progress",
-  },
-  {
-    id: 4,
-    title: "Send internal onboarding email (Name, Position, ID, Email)",
-    subtitle: "To: Network Team, Admin Team, Reporting Manager",
-    assigned: "HR",
-    status: "Pending",
-  },
-  {
-    id: 5,
-    title: "Email creation request (Outlook)",
-    assigned: "HR → Neel Sir",
-    status: "Pending",
-  },
-  {
-    id: 6,
-    title: "Email creation approval",
-    assigned: "Neel Sir",
-    status: "Pending",
-  },
-  { id: 7, title: "System setup", assigned: "Network Team", status: "Pending" },
-  {
-    id: 8,
-    title: "Email configuration",
-    assigned: "Network Team",
-    status: "Pending",
-  },
-  {
-    id: 9,
-    title: "Sophos installation",
-    assigned: "Network Team",
-    status: "Pending",
-  },
-  {
-    id: 10,
-    title: "Microsoft Teams access",
-    assigned: "Network Team",
-    status: "Pending",
-  },
-  {
-    id: 11,
-    title: "Biometric & iClock setup",
-    assigned: "Ankur",
-    status: "Pending",
-  },
-  {
-    id: 12,
-    title: "Collect formal photograph (for ID card & LinkedIn post)",
-    assigned: "HR",
-    status: "Pending",
-  },
-  {
-    id: 13,
-    title: "Share employee details & photo with UI/UX Team",
-    assigned: "HR",
-    status: "Pending",
-  },
-  {
-    id: 14,
-    title: "Design LinkedIn welcome post",
-    assigned: "UI/UX Team",
-    status: "Pending",
-  },
-  {
-    id: 15,
-    title: "Design Keka welcome post",
-    assigned: "UI/UX Team",
-    status: "Pending",
-  },
-  {
-    id: 16,
-    title: "Design ID card",
-    assigned: "UI/UX Team",
-    status: "Pending",
-  },
-  {
-    id: 17,
-    title: "BGV initiation (skipped)",
-    subtitle: "Background verification — currently skipped as per policy",
-    assigned: "Third Party",
-    status: "Pending",
-  },
-]);
+const phase2Name = ref("");
+const phase2Description = ref("");
+const phase2Tasks = ref([]);
 
-// Phase 3 Tasks
-const phase3Tasks = ref([
-  {
-    id: 1,
-    title: "Create Keka account (Day 3)",
-    assigned: "HR",
-    status: "Pending",
-  },
-  {
-    id: 2,
-    title: "Create Self-Assessment account (Day 3)",
-    assigned: "HR",
-    status: "Pending",
-  },
-  {
-    id: 3,
-    title: "Share login credentials via email",
-    assigned: "HR",
-    status: "Pending",
-  },
-  {
-    id: 4,
-    title: "Email Neel Sir to enable timesheet",
-    subtitle: "After Keka account creation",
-    assigned: "HR",
-    status: "Pending",
-  },
-  {
-    id: 5,
-    title: "Assign tasks in timesheet system",
-    assigned: "Delivery Manager",
-    status: "Pending",
-  },
-  {
-    id: 6,
-    title: "Schedule & conduct policy briefing (Day 3)",
-    assigned: "HR",
-    status: "Pending",
-  },
-  {
-    id: 7,
-    title: "Publish Keka welcome post (Day 3)",
-    assigned: "HR / UI/UX",
-    status: "Pending",
-  },
-  {
-    id: 8,
-    title: "Publish LinkedIn welcome post (after 1 week)",
-    assigned: "HR / UI/UX",
-    status: "Pending",
-  },
-]);
+const phase3Name = ref("");
+const phase3Description = ref("");
+const phase3Tasks = ref([]);
 
-// Phase 4 Tasks
-const phase4Tasks = ref([
-  {
-    id: 1,
-    title: "Send feedback email to Reporting Manager (Day 15)",
-    subtitle: "Focus: Performance, Behaviour, Overall integration",
-    assigned: "HR",
-    status: "Pending",
-  },
-  {
-    id: 2,
-    title: "Collect & review feedback",
-    assigned: "HR",
-    status: "Pending",
-  },
-  {
-    id: 3,
-    title: "Store feedback in employee record",
-    assigned: "System",
-    status: "Pending",
-  },
-]);
+const phase4Name = ref("");
+const phase4Description = ref("");
+const phase4Tasks = ref([]);
+
+const mapStatusToUI = (status) => {
+  if (!status) return "Pending";
+  const mapping = {
+    pending: "Pending",
+    started: "In Process",
+    completed: "Done",
+    hold: "Hold",
+  };
+  return mapping[status.toLowerCase()] || "Pending";
+};
+
+const mapApiTasks = (apiTasks) => {
+  if (!apiTasks) return [];
+  return apiTasks.map((t) => ({
+    id: t.id,
+    title: t.task_name,
+    subtitle: t.description,
+    assigned: t.assigned_role,
+    status: mapStatusToUI(t.status),
+  }));
+};
+
+const formatDate = (value) => {
+  if (!value) return "Not set";
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+};
+
+const selectEmployee = async (employee) => {
+  selectedEmployee.value = employee;
+  loadingDetails.value = true;
+
+  try {
+    const userRole = authStore.user?.role;
+    let endpoint = "/hr/employees";
+    if (userRole === "SUPER_ADMIN") endpoint = "/super-admin/employees";
+
+    const result = await getEmployee(endpoint, employee.id);
+    if (result.ok) {
+      const fullEmployee = result.data;
+      const onboardingProcess = fullEmployee.processes?.find(
+        (p) => p.process_type === "onboarding",
+      );
+
+      if (onboardingProcess && onboardingProcess.phases) {
+        const phases = onboardingProcess.phases;
+
+        // Phase 1
+        const p1 = phases.find((p) => p.phase_number === 1);
+        if (p1) {
+          phase1Name.value = p1.phase_name;
+          phase1Description.value = p1.description;
+          phase1Tasks.value = mapApiTasks(p1.tasks);
+        } else {
+          phase1Tasks.value = [];
+        }
+
+        // Phase 2
+        const p2 = phases.find((p) => p.phase_number === 2);
+        if (p2) {
+          phase2Name.value = p2.phase_name;
+          phase2Description.value = p2.description;
+          phase2Tasks.value = mapApiTasks(p2.tasks);
+        } else {
+          phase2Tasks.value = [];
+        }
+
+        // Phase 3
+        const p3 = phases.find((p) => p.phase_number === 3);
+        if (p3) {
+          phase3Name.value = p3.phase_name;
+          phase3Description.value = p3.description;
+          phase3Tasks.value = mapApiTasks(p3.tasks);
+        } else {
+          phase3Tasks.value = [];
+        }
+
+        // Phase 4
+        const p4 = phases.find((p) => p.phase_number === 4);
+        if (p4) {
+          phase4Name.value = p4.phase_name;
+          phase4Description.value = p4.description;
+          phase4Tasks.value = mapApiTasks(p4.tasks);
+        } else {
+          phase4Tasks.value = [];
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching employee details:", error);
+  } finally {
+    loadingDetails.value = false;
+  }
+};
+
+const filteredEmployees = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase();
+  if (!query) return allEmployees.value;
+
+  return allEmployees.value.filter((emp) => {
+    return (
+      emp.name.toLowerCase().includes(query) ||
+      emp.role.toLowerCase().includes(query) ||
+      emp.employee_code?.toLowerCase().includes(query)
+    );
+  });
+});
+
+const fetchEmployees = async () => {
+  loadingEmployees.value = true;
+  try {
+    const userRole = authStore.user?.role;
+    let endpoint = "/hr/employees";
+    if (userRole === "SUPER_ADMIN") endpoint = "/super-admin/employees";
+
+    const result = await listEmployees(endpoint);
+    if (result.ok) {
+      allEmployees.value = result.data.map((e) => {
+        const onboarding = e.processes?.find(
+          (p) => p.process_type === "onboarding",
+        );
+        return {
+          ...e,
+          initials:
+            (e.first_name?.charAt(0) || "") + (e.last_name?.charAt(0) || ""),
+          name: `${e.first_name || ""} ${e.last_name || ""}`.trim(),
+          role: e.designation || "No Designation",
+          date: formatDate(e.date_of_joining),
+          status: onboarding?.overall_status?.toUpperCase() || "PENDING",
+          statusClass:
+            onboarding?.overall_status === "completed"
+              ? "oe-bg-green-100 oe-text-green-700"
+              : "oe-bg-blue-100 oe-text-blue-700",
+          phase:
+            onboarding?.phases?.find((p) => p.status === "started")
+              ?.phase_name ||
+            onboarding?.phases?.[0]?.phase_name ||
+            "Not Started",
+          avatarBg: "oe-bg-blue-100 oe-text-blue-700",
+        };
+      });
+
+      if (allEmployees.value.length > 0) {
+        selectEmployee(allEmployees.value[0]);
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching employees:", error);
+  } finally {
+    loadingEmployees.value = false;
+  }
+};
 
 // Status Toggling
 const toggleTaskStatus = (task) => {
@@ -880,40 +923,41 @@ const updateTaskStatus = (tasksArray, index, newStatus) => {
   tasksArray[index].status = newStatus;
 };
 
-const getStatusClass = (task) => {
-  if (task.status === "Done") return "oe-bg-emerald-100 oe-text-emerald-700";
-  if (task.status === "In Progress") return "oe-bg-blue-100 oe-text-blue-700";
-  if (task.status === "Hold") return "oe-bg-amber-100 oe-text-amber-700";
-  return "oe-bg-gray-100 oe-text-gray-600";
-};
-
 // Progress Computations
 const phase1Completed = computed(
   () => phase1Tasks.value.filter((t) => t.status === "Done").length,
 );
-const phase1Progress = computed(
-  () => (phase1Completed.value / phase1Tasks.value.length) * 100,
+const phase1Progress = computed(() =>
+  phase1Tasks.value.length > 0
+    ? (phase1Completed.value / phase1Tasks.value.length) * 100
+    : 0,
 );
 
 const phase2Completed = computed(
   () => phase2Tasks.value.filter((t) => t.status === "Done").length,
 );
-const phase2Progress = computed(
-  () => (phase2Completed.value / phase2Tasks.value.length) * 100,
+const phase2Progress = computed(() =>
+  phase2Tasks.value.length > 0
+    ? (phase2Completed.value / phase2Tasks.value.length) * 100
+    : 0,
 );
 
 const phase3Completed = computed(
   () => phase3Tasks.value.filter((t) => t.status === "Done").length,
 );
-const phase3Progress = computed(
-  () => (phase3Completed.value / phase3Tasks.value.length) * 100,
+const phase3Progress = computed(() =>
+  phase3Tasks.value.length > 0
+    ? (phase3Completed.value / phase3Tasks.value.length) * 100
+    : 0,
 );
 
 const phase4Completed = computed(
   () => phase4Tasks.value.filter((t) => t.status === "Done").length,
 );
-const phase4Progress = computed(
-  () => (phase4Completed.value / phase4Tasks.value.length) * 100,
+const phase4Progress = computed(() =>
+  phase4Tasks.value.length > 0
+    ? (phase4Completed.value / phase4Tasks.value.length) * 100
+    : 0,
 );
 
 const totalTasks = computed(
@@ -930,43 +974,11 @@ const totalCompletedTasks = computed(
     phase3Completed.value +
     phase4Completed.value,
 );
-const overallProgress = computed(
-  () => (totalCompletedTasks.value / totalTasks.value) * 100,
+const overallProgress = computed(() =>
+  totalTasks.value > 0
+    ? (totalCompletedTasks.value / totalTasks.value) * 100
+    : 0,
 );
 
-const employees = [
-  {
-    id: 1,
-    initials: "PS",
-    avatarBg: "oe-bg-blue-100 oe-text-blue-700",
-    name: "Priya Sharma",
-    role: "Frontend Developer - Engineering",
-    date: "Mar 25, 2026",
-    status: "Active",
-    statusClass: "oe-bg-blue-100 oe-text-blue-700",
-    phase: "Day 1 – Documentation & Setup",
-  },
-  {
-    id: 2,
-    initials: "RV",
-    avatarBg: "oe-bg-blue-100 oe-text-blue-700",
-    name: "Rahul Verma",
-    role: "Backend Developer - Engineering",
-    date: "Mar 24, 2026",
-    status: "In Progress",
-    statusClass: "oe-bg-blue-100 oe-text-blue-700",
-    phase: "Day 1 – Documentation & Setup",
-  },
-  {
-    id: 3,
-    initials: "AG",
-    avatarBg: "oe-bg-blue-100 oe-text-blue-700",
-    name: "Ankit Gupta",
-    role: "Qa - Engineering",
-    date: "Mar 24, 2026",
-    status: "Completed",
-    statusClass: "oe-bg-green-100 oe-text-green-700",
-    phase: "Day 1 – Documentation & Setup",
-  },
-];
+onMounted(fetchEmployees);
 </script>

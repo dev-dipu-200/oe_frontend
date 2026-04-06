@@ -25,6 +25,7 @@
       <div class="oe-flex oe-gap-4 oe-mb-8">
         <div class="oe-flex-1 oe-relative">
           <input
+            v-model="searchQuery"
             type="text"
             placeholder="Search employees..."
             class="oe-w-full oe-bg-white oe-border oe-border-gray-200 oe-rounded-2xl oe-pl-12 oe-py-3 oe-text-sm focus:oe-outline-none focus:oe-border-blue-500 oe-transition-colors"
@@ -48,6 +49,7 @@
           </div>
         </div>
         <button
+          @click="isFilterDrawerOpen = true"
           class="oe-flex oe-items-center oe-gap-2 oe-bg-white oe-border oe-border-gray-200 oe-px-6 oe-rounded-2xl hover:oe-bg-gray-50 oe-transition-colors"
         >
           <span><Icon icon="lucide:filter" /></span>
@@ -55,14 +57,21 @@
         </button>
       </div>
 
+      <FilterDrawer
+        v-model:is-open="isFilterDrawerOpen"
+        :initial-filters="currentFilters"
+        @filter="handleFilter"
+        @reset="handleReset"
+      />
+
       <!-- Employees List -->
       <div
         class="oe-bg-white oe-rounded-3xl oe-shadow-sm oe-overflow-hidden oe-mb-10 oe-border oe-transition-colors"
       >
         <div
-          v-for="employee in exitEmployees"
+          v-for="employee in filteredExitEmployees"
           :key="employee.id"
-          class="oe-px-8 oe-py-6 oe-flex oe-items-center oe-gap-6 hover:oe-bg-gray-50 oe-border-b last:oe-border-b-0 oe-transition-colors"
+          class="oe-px-8 oe-py-6 oe-flex oe-items-center oe-gap-6 hover:oe-bg-gray-50 oe-border-b last:oe-border-b-0 oe-transition-colors cursor-pointer"
         >
           <div
             class="oe-w-11 oe-h-11 oe-rounded-2xl oe-flex oe-items-center oe-justify-center oe-text-lg oe-font-semibold flex-shrink-0"
@@ -590,7 +599,32 @@
 </template>
 
 <script setup>
+import { ref, computed } from "vue";
 import { Icon } from '@iconify/vue';
+import FilterDrawer from "@/components/FilterDrawer.vue";
+
+// Filter Logic
+const searchQuery = ref("");
+const isFilterDrawerOpen = ref(false);
+const currentFilters = ref({
+  keyword: "",
+  from_date: "",
+  to_date: "",
+  is_paginate: true,
+  page: 1,
+  page_size: 10,
+});
+
+const handleFilter = (filters) => {
+  currentFilters.value = filters;
+  // Implementation for fetching with filters would go here
+  console.log("Applying filters:", filters);
+};
+
+const handleReset = (filters) => {
+  currentFilters.value = filters;
+  console.log("Resetting filters:", filters);
+};
 
 // Phase Toggle
 const openPhases = ref({ 1: true, 2: true, 3: true, 4: true });
@@ -754,4 +788,16 @@ const exitEmployees = [
     phase: "Phase 1 – Pending Approval",
   },
 ];
+
+const filteredExitEmployees = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase();
+  if (!query) return exitEmployees;
+
+  return exitEmployees.filter((emp) => {
+    return (
+      emp.name.toLowerCase().includes(query) ||
+      emp.role.toLowerCase().includes(query)
+    );
+  });
+});
 </script>

@@ -4,7 +4,7 @@
   >
     <div class="oe-mx-auto oe-space-y-8 oe-p-2">
       <section
-        class="oe-rounded-[2rem] oe-border oe-border-slate-200 oe-bg-white oe-p-6 oe-shadow-sm"
+        class=""
       >
         <div
           class="oe-flex oe-flex-col oe-gap-4 lg:oe-flex-row lg:oe-items-center lg:oe-justify-between"
@@ -14,8 +14,8 @@
               <input
                 v-model="searchQuery"
                 type="text"
-                placeholder="Search by code, name, email, department, designation"
-                class="oe-w-full oe-rounded-2xl oe-border oe-border-slate-200 oe-bg-slate-50 oe-px-4 oe-py-3 oe-pl-12 oe-text-sm focus:oe-border-blue-500 focus:oe-outline-none"
+                placeholder="Search by code, name, email"
+                class="oe-w-1/4 oe-rounded-2xl oe-border oe-border-slate-200 oe-bg-white oe-px-4 oe-py-3 oe-pl-12 oe-text-sm focus:oe-border-blue-500 focus:oe-outline-none"
               />
               <span
                 class="oe-pointer-events-none oe-absolute oe-left-4 oe-top-1/2 -oe-translate-y-1/2 oe-text-slate-400"
@@ -33,13 +33,7 @@
             >
               Refresh
             </button>
-            <!-- <button
-              @click="openCreateForm"
-              type="button"
-              class="oe-rounded-2xl oe-bg-blue-600 oe-px-5 oe-py-3 oe-text-sm oe-font-medium oe-text-white hover:oe-bg-blue-700"
-            >
-              Add Employee
-            </button> -->
+           
           </div>
         </div>
       </section>

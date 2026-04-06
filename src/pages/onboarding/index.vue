@@ -13,26 +13,6 @@
             Manage new employee onboarding workflows
           </p>
         </div>
-        <!-- <button
-          class="oe-bg-blue-600 hover:oe-bg-blue-700 oe-text-white oe-px-6 oe-py-3 oe-rounded-xl oe-flex oe-items-center oe-gap-2 oe-font-medium transition-colors shadow-lg shadow-blue-500/20"
-        >
-          <span class="oe-text-xl oe-text-white">
-            <svg
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              class="oe-w-5 oe-h-5"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
-            </svg>
-          </span>
-          New Onboarding
-        </button> -->
       </div>
 
       <!-- Search & Filter -->
@@ -42,7 +22,7 @@
             v-model="searchQuery"
             type="text"
             placeholder="Search employees..."
-            class="oe-w-full oe-bg-white oe-border oe-border-gray-200 oe-rounded-2xl oe-pl-12 oe-py-3 oe-text-sm focus:oe-outline-none focus:oe-border-blue-500 oe-transition-colors"
+            class="oe-w-1/4 oe-bg-white oe-border oe-border-gray-200 oe-rounded-2xl oe-pl-12 oe-py-3 oe-text-sm focus:oe-outline-none focus:oe-border-blue-500 oe-transition-colors"
           />
           <div
             class="oe-absolute oe-left-5 oe-top-1/4 -translate-y-1/2 text-gray-400"
@@ -63,12 +43,20 @@
           </div>
         </div>
         <button
+          @click="isFilterDrawerOpen = true"
           class="oe-flex oe-items-center oe-gap-2 oe-bg-white oe-border oe-border-gray-200 oe-px-6 oe-rounded-2xl hover:oe-bg-gray-50 oe-transition-colors"
         >
           <span>🔽</span>
           <span class="oe-font-medium">Filter</span>
         </button>
       </div>
+
+      <FilterDrawer
+        v-model:is-open="isFilterDrawerOpen"
+        :initial-filters="currentFilters"
+        @filter="handleFilter"
+        @reset="handleReset"
+      />
 
       <!-- Employees List -->
       <div
@@ -709,12 +697,14 @@
   </div>
 </template>
 
+
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useEmployeesApi } from "@/apis/employees";
 import { useAuthStore } from "@/stores/auth";
 import { useApi } from "@/composables/useApi";
 import { useWebsocket } from "@/composables/useWebsocket";
+import FilterDrawer from "@/components/FilterDrawer.vue";
 
 const { listEmployees, getEmployee } = useEmployeesApi();
 const authStore = useAuthStore();
@@ -728,6 +718,117 @@ const searchQuery = ref("");
 const allEmployees = ref([]);
 const selectedEmployee = ref(null);
 
+const isFilterDrawerOpen = ref(false);
+const currentFilters = ref({
+  keyword: "",
+  from_date: "",
+  to_date: "",
+  is_paginate: true,
+  page: 1,
+  page_size: 10,
+});
+
+// ====================== CLEAN FILTERS (Fix for 422) ======================
+const getCleanFilters = (filters) => {
+  const payload = {};
+
+  // Only include keyword if it has value
+  if (filters.keyword?.trim()) {
+    payload.keyword = filters.keyword.trim();
+  }
+
+  // Only include dates if they are selected
+  if (filters.from_date) {
+    payload.from_date = filters.from_date;
+  }
+  if (filters.to_date) {
+    payload.to_date = filters.to_date;
+  }
+
+  // Always include is_paginate
+  payload.is_paginate = Boolean(filters.is_paginate);
+
+  // Include page & page_size only if pagination is enabled
+  if (payload.is_paginate) {
+    payload.page = Number(filters.page) || 1;
+    payload.page_size = Number(filters.page_size) || 10;
+  }
+
+  return payload;
+};
+
+// ====================== FILTER HANDLERS ======================
+const handleFilter = (filters) => {
+  currentFilters.value = { ...filters };
+  fetchEmployees();
+};
+
+const handleReset = () => {
+  currentFilters.value = {
+    keyword: "",
+    from_date: "",
+    to_date: "",
+    is_paginate: true,
+    page: 1,
+    page_size: 10,
+  };
+  fetchEmployees();
+};
+
+// ====================== FETCH EMPLOYEES (Fixed) ======================
+const fetchEmployees = async () => {
+  loadingEmployees.value = true;
+
+  try {
+    const userRole = authStore.user?.role;
+    let endpoint = "/hr/employees";
+    if (userRole === "SUPER_ADMIN") endpoint = "/super-admin/employees";
+
+    // Use clean payload to prevent 422 error
+    const cleanPayload = getCleanFilters(currentFilters.value);
+
+    const result = await listEmployees(endpoint, cleanPayload);
+
+    if (result.ok) {
+      allEmployees.value = result.data.map((e) => {
+        const onboarding = e.processes?.find(
+          (p) => p.process_type === "onboarding"
+        );
+        return {
+          ...e,
+          initials:
+            (e.first_name?.charAt(0) || "") + (e.last_name?.charAt(0) || ""),
+          name: `${e.first_name || ""} ${e.last_name || ""}`.trim(),
+          role: e.designation || "No Designation",
+          date: formatDate(e.date_of_joining),
+          status: onboarding?.overall_status?.toUpperCase() || "PENDING",
+          statusClass:
+            onboarding?.overall_status === "completed"
+              ? "oe-bg-green-100 oe-text-green-700"
+              : "oe-bg-blue-100 oe-text-blue-700",
+          phase:
+            onboarding?.phases?.find((p) => p.status === "started")
+              ?.phase_name ||
+            onboarding?.phases?.[0]?.phase_name ||
+            "Not Started",
+          avatarBg: "oe-bg-blue-100 oe-text-blue-700",
+        };
+      });
+
+      if (allEmployees.value.length > 0) {
+        selectEmployee(allEmployees.value[0]);
+      } else {
+        selectedEmployee.value = null;
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching employees:", error);
+  } finally {
+    loadingEmployees.value = false;
+  }
+};
+
+// ====================== Rest of your code (Unchanged) ======================
 const openPhases = ref({
   1: true,
   2: true,
@@ -756,24 +857,8 @@ const phase4Name = ref("");
 const phase4Description = ref("");
 const phase4Tasks = ref([]);
 
-/*
- @param status 
-
- curl -X 'PATCH' \
-  'http://localhost:8000/employee/employees/1/phases/1/tasks/2/status' \
-  -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdXBlckB5b3BtYWlsLmNvbSIsImV4cCI6MTc3NTQ1OTQyM30.7DNIoLpWfyu_ic05qkRxjSFLCHk5CKWjmp-638RLIJU' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "status": "done",
-  "reason": "string",
-  "comments": "string"
-}'
- */
-
 const mapStatusToUI = (status) => {
   if (!status) return "Pending";
-
   const mapping = {
     pending: "Pending",
     inprogress: "In Process",
@@ -821,13 +906,12 @@ const selectEmployee = async (employee) => {
     if (result.ok) {
       const fullEmployee = result.data;
       const onboardingProcess = fullEmployee.processes?.find(
-        (p) => p.process_type === "onboarding",
+        (p) => p.process_type === "onboarding"
       );
 
       if (onboardingProcess && onboardingProcess.phases) {
         const phases = onboardingProcess.phases;
 
-        // Phase 1
         const p1 = phases.find((p) => p.phase_number === 1);
         if (p1) {
           phase1Name.value = p1.phase_name;
@@ -837,7 +921,6 @@ const selectEmployee = async (employee) => {
           phase1Tasks.value = [];
         }
 
-        // Phase 2
         const p2 = phases.find((p) => p.phase_number === 2);
         if (p2) {
           phase2Name.value = p2.phase_name;
@@ -847,7 +930,6 @@ const selectEmployee = async (employee) => {
           phase2Tasks.value = [];
         }
 
-        // Phase 3
         const p3 = phases.find((p) => p.phase_number === 3);
         if (p3) {
           phase3Name.value = p3.phase_name;
@@ -857,7 +939,6 @@ const selectEmployee = async (employee) => {
           phase3Tasks.value = [];
         }
 
-        // Phase 4
         const p4 = phases.find((p) => p.phase_number === 4);
         if (p4) {
           phase4Name.value = p4.phase_name;
@@ -887,51 +968,6 @@ const filteredEmployees = computed(() => {
     );
   });
 });
-
-const fetchEmployees = async () => {
-  loadingEmployees.value = true;
-  try {
-    const userRole = authStore.user?.role;
-    let endpoint = "/hr/employees";
-    if (userRole === "SUPER_ADMIN") endpoint = "/super-admin/employees";
-
-    const result = await listEmployees(endpoint);
-    if (result.ok) {
-      allEmployees.value = result.data.map((e) => {
-        const onboarding = e.processes?.find(
-          (p) => p.process_type === "onboarding",
-        );
-        return {
-          ...e,
-          initials:
-            (e.first_name?.charAt(0) || "") + (e.last_name?.charAt(0) || ""),
-          name: `${e.first_name || ""} ${e.last_name || ""}`.trim(),
-          role: e.designation || "No Designation",
-          date: formatDate(e.date_of_joining),
-          status: onboarding?.overall_status?.toUpperCase() || "PENDING",
-          statusClass:
-            onboarding?.overall_status === "completed"
-              ? "oe-bg-green-100 oe-text-green-700"
-              : "oe-bg-blue-100 oe-text-blue-700",
-          phase:
-            onboarding?.phases?.find((p) => p.status === "started")
-              ?.phase_name ||
-            onboarding?.phases?.[0]?.phase_name ||
-            "Not Started",
-          avatarBg: "oe-bg-blue-100 oe-text-blue-700",
-        };
-      });
-
-      if (allEmployees.value.length > 0) {
-        selectEmployee(allEmployees.value[0]);
-      }
-    }
-  } catch (error) {
-    console.error("Error fetching employees:", error);
-  } finally {
-    loadingEmployees.value = false;
-  }
-};
 
 const mapUIToStatus = (uiStatus) => {
   const mapping = {
@@ -963,8 +999,6 @@ const updateTaskStatusDirectly = async (task, newStatus) => {
 
   try {
     const { call } = useApi();
-    
-    // http://localhost:8000/employee/employees/1/phases/1/tasks/2/status
     const endpoint = `/employee/employees/${selectedEmployee.value.id}/phases/${task.phase_id}/tasks/${task.id}/status`;
 
     const payload = {
@@ -989,85 +1023,53 @@ const updateTaskStatusDirectly = async (task, newStatus) => {
 };
 
 // Progress Computations
-const phase1Completed = computed(
-  () => phase1Tasks.value.filter((t) => t.status === "Done").length,
-);
+const phase1Completed = computed(() => phase1Tasks.value.filter((t) => t.status === "Done").length);
 const phase1Progress = computed(() =>
-  phase1Tasks.value.length > 0
-    ? (phase1Completed.value / phase1Tasks.value.length) * 100
-    : 0,
+  phase1Tasks.value.length > 0 ? (phase1Completed.value / phase1Tasks.value.length) * 100 : 0
 );
 
-const phase2Completed = computed(
-  () => phase2Tasks.value.filter((t) => t.status === "Done").length,
-);
+const phase2Completed = computed(() => phase2Tasks.value.filter((t) => t.status === "Done").length);
 const phase2Progress = computed(() =>
-  phase2Tasks.value.length > 0
-    ? (phase2Completed.value / phase2Tasks.value.length) * 100
-    : 0,
+  phase2Tasks.value.length > 0 ? (phase2Completed.value / phase2Tasks.value.length) * 100 : 0
 );
 
-const phase3Completed = computed(
-  () => phase3Tasks.value.filter((t) => t.status === "Done").length,
-);
+const phase3Completed = computed(() => phase3Tasks.value.filter((t) => t.status === "Done").length);
 const phase3Progress = computed(() =>
-  phase3Tasks.value.length > 0
-    ? (phase3Completed.value / phase3Tasks.value.length) * 100
-    : 0,
+  phase3Tasks.value.length > 0 ? (phase3Completed.value / phase3Tasks.value.length) * 100 : 0
 );
 
-const phase4Completed = computed(
-  () => phase4Tasks.value.filter((t) => t.status === "Done").length,
-);
+const phase4Completed = computed(() => phase4Tasks.value.filter((t) => t.status === "Done").length);
 const phase4Progress = computed(() =>
-  phase4Tasks.value.length > 0
-    ? (phase4Completed.value / phase4Tasks.value.length) * 100
-    : 0,
+  phase4Tasks.value.length > 0 ? (phase4Completed.value / phase4Tasks.value.length) * 100 : 0
 );
 
-const totalTasks = computed(
-  () =>
-    phase1Tasks.value.length +
-    phase2Tasks.value.length +
-    phase3Tasks.value.length +
-    phase4Tasks.value.length,
+const totalTasks = computed(() =>
+  phase1Tasks.value.length + phase2Tasks.value.length + phase3Tasks.value.length + phase4Tasks.value.length
 );
-const totalCompletedTasks = computed(
-  () =>
-    phase1Completed.value +
-    phase2Completed.value +
-    phase3Completed.value +
-    phase4Completed.value,
+
+const totalCompletedTasks = computed(() =>
+  phase1Completed.value + phase2Completed.value + phase3Completed.value + phase4Completed.value
 );
+
 const overallProgress = computed(() =>
-  totalTasks.value > 0
-    ? (totalCompletedTasks.value / totalTasks.value) * 100
-    : 0,
+  totalTasks.value > 0 ? (totalCompletedTasks.value / totalTasks.value) * 100 : 0
 );
 
 const handleRealtimeTaskUpdate = (data) => {
   const { task_id, status, phase_id, employee_id, phase_status, overall_status } = data;
 
-  // 1. Update overall employee status in the list if visible
   const employee = allEmployees.value.find(e => e.id === employee_id);
   if (employee) {
     if (overall_status) {
       employee.status = overall_status.toUpperCase();
-      employee.statusClass = overall_status === "completed" 
-        ? "oe-bg-green-100 oe-text-green-700" 
+      employee.statusClass = overall_status === "completed"
+        ? "oe-bg-green-100 oe-text-green-700"
         : "oe-bg-blue-100 oe-text-blue-700";
     }
   }
 
-  // 2. Update task in the current selected employee workflow
   if (selectedEmployee.value && selectedEmployee.value.id === employee_id) {
-    const allPhaseTasks = [
-      phase1Tasks.value,
-      phase2Tasks.value,
-      phase3Tasks.value,
-      phase4Tasks.value
-    ];
-
+    const allPhaseTasks = [phase1Tasks.value, phase2Tasks.value, phase3Tasks.value, phase4Tasks.value];
     for (const tasks of allPhaseTasks) {
       const task = tasks.find(t => t.id === task_id);
       if (task) {
@@ -1081,7 +1083,6 @@ const handleRealtimeTaskUpdate = (data) => {
 onMounted(() => {
   fetchEmployees();
 
-  // Listen for real-time updates
   unsubscribeWS = onMessageReceived((message) => {
     if (message.type === "task_status_updated") {
       const updateData = message.data;

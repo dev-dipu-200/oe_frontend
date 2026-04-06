@@ -3,37 +3,8 @@
     class="oe-min-h-screen oe-bg-gray-50 oe-transition-colors oe-duration-300"
   >
     <div class="oe-mx-auto oe-space-y-8 oe-p-2">
-      <!-- <section
-        class="oe-overflow-hidden oe-rounded-[2rem] oe-bg-gradient-to-r oe-from-slate-900 oe-via-blue-900 oe-to-cyan-800 oe-p-8 oe-text-white"
-      >
-        <div class="oe-flex oe-flex-col oe-gap-6 lg:oe-flex-row lg:oe-items-end lg:oe-justify-between">
-          <div class="oe-max-w-3xl">
-            <p class="oe-text-sm oe-uppercase oe-tracking-[0.3em] oe-text-cyan-200">
-              Employee Directory
-            </p>
-            <h1 class="oe-mt-3 oe-text-3xl oe-font-semibold lg:oe-text-4xl">
-              {{ title }}
-            </h1>
-            <p class="oe-mt-3 oe-max-w-2xl oe-text-sm oe-text-slate-200 lg:oe-text-base">
-              {{ description }}
-            </p>
-          </div>
-
-          <div class="oe-grid oe-grid-cols-2 oe-gap-3 sm:oe-gap-4">
-            <div class="oe-rounded-2xl oe-bg-white/10 oe-p-4 oe-backdrop-blur">
-              <p class="oe-text-xs oe-uppercase oe-tracking-[0.2em] oe-text-cyan-100">Total</p>
-              <p class="oe-mt-2 oe-text-2xl oe-font-semibold">{{ employees.length }}</p>
-            </div>
-            <div class="oe-rounded-2xl oe-bg-white/10 oe-p-4 oe-backdrop-blur">
-              <p class="oe-text-xs oe-uppercase oe-tracking-[0.2em] oe-text-cyan-100">Filtered</p>
-              <p class="oe-mt-2 oe-text-2xl oe-font-semibold">{{ filteredEmployees.length }}</p>
-            </div>
-          </div>
-        </div>
-      </section> -->
-
       <section
-        class="oe-rounded-[2rem] oe-border oe-border-slate-200 oe-bg-white oe-p-6 oe-shadow-sm"
+        class=""
       >
         <div
           class="oe-flex oe-flex-col oe-gap-4 lg:oe-flex-row lg:oe-items-center lg:oe-justify-between"
@@ -43,8 +14,8 @@
               <input
                 v-model="searchQuery"
                 type="text"
-                placeholder="Search by code, name, email, department, designation"
-                class="oe-w-full oe-rounded-2xl oe-border oe-border-slate-200 oe-bg-slate-50 oe-px-4 oe-py-3 oe-pl-12 oe-text-sm focus:oe-border-blue-500 focus:oe-outline-none"
+                placeholder="Search by code, name, email"
+                class="oe-w-1/4 oe-rounded-2xl oe-border oe-border-slate-200 oe-bg-white oe-px-4 oe-py-3 oe-pl-12 oe-text-sm focus:oe-border-blue-500 focus:oe-outline-none"
               />
               <span
                 class="oe-pointer-events-none oe-absolute oe-left-4 oe-top-1/2 -oe-translate-y-1/2 oe-text-slate-400"
@@ -55,6 +26,14 @@
           </div>
 
           <div class="oe-flex oe-flex-wrap oe-gap-3">
+             <button
+              @click="isFilterDrawerOpen = true"
+              type="button"
+              class="oe-rounded-2xl oe-border oe-border-slate-200 oe-bg-white oe-px-4 oe-py-3 oe-text-sm oe-font-medium oe-text-slate-700 hover:oe-bg-slate-50 oe-flex oe-items-center oe-gap-2"
+            >
+              <span>🔽</span>
+              Filter
+            </button>
             <button
               @click="fetchEmployees"
               type="button"
@@ -62,16 +41,16 @@
             >
               Refresh
             </button>
-            <!-- <button
-              @click="openCreateForm"
-              type="button"
-              class="oe-rounded-2xl oe-bg-blue-600 oe-px-5 oe-py-3 oe-text-sm oe-font-medium oe-text-white hover:oe-bg-blue-700"
-            >
-              Add Employee
-            </button> -->
           </div>
         </div>
       </section>
+
+      <FilterDrawer
+        v-model:is-open="isFilterDrawerOpen"
+        :initial-filters="currentFilters"
+        @filter="handleFilter"
+        @reset="handleReset"
+      />
 
       <section
         class="oe-grid oe-grid-cols-1 oe-gap-6 xl:oe-grid-cols-[minmax(0,1.5fr)_minmax(360px,0.9fr)]"
@@ -453,8 +432,10 @@
 </template>
 
 <script setup lang="ts">
+import { ref, reactive, computed, watch, onMounted } from 'vue';
 import { useEmployeesApi, type EmployeePayload } from "@/apis/employees";
 import { useToastStore } from "@/stores/toast";
+import FilterDrawer from "@/components/FilterDrawer.vue";
 
 const props = defineProps<{
   title: string;
@@ -471,9 +452,82 @@ const searchQuery = ref("");
 const employees = ref<any[]>([]);
 const editingEmployeeId = ref<number | string | null>(null);
 
+const isFilterDrawerOpen = ref(false);
+
+// Current filters - start with clean defaults
+const currentFilters = ref({
+  keyword: "",
+  from_date: "",
+  to_date: "",
+  is_paginate: true,
+  page: 1,
+  page_size: 10,
+});
+
+// Clean the payload before sending to API (This fixes 422)
+const getCleanFilters = (filters: any) => {
+  const payload: Record<string, any> = {};
+
+  if (filters.keyword?.trim()) {
+    payload.keyword = filters.keyword.trim();
+  }
+  if (filters.from_date) {
+    payload.from_date = filters.from_date;
+  }
+  if (filters.to_date) {
+    payload.to_date = filters.to_date;
+  }
+
+  payload.is_paginate = Boolean(filters.is_paginate);
+
+  if (payload.is_paginate) {
+    payload.page = Number(filters.page) || 1;
+    payload.page_size = Number(filters.page_size) || 10;
+  }
+
+  return payload;
+};
+
+const handleFilter = (incomingFilters: any) => {
+  currentFilters.value = { ...incomingFilters };   // store raw for drawer
+  fetchEmployees();
+};
+
+const handleReset = () => {
+  currentFilters.value = {
+    keyword: "",
+    from_date: "",
+    to_date: "",
+    is_paginate: true,
+    page: 1,
+    page_size: 10,
+  };
+  fetchEmployees();
+};
+
+const fetchEmployees = async () => {
+  loading.value = true;
+
+  try {
+    const cleanPayload = getCleanFilters(currentFilters.value);
+
+    const result = await listEmployees(props.endpointBase, cleanPayload);
+
+    if (result.ok) {
+      employees.value = result.data || [];
+    } else {
+      toastStore.error(result.message || "Failed to load employees");
+    }
+  } catch (error: any) {
+    console.error(error);
+    toastStore.error(error.response?.data?.message || "Something went wrong");
+  } finally {
+    loading.value = false;
+  }
+};
+
 const createInitialForm = (): EmployeePayload => ({
-  employee_code:
-    "D00" + (employees.value.length + 1).toString().padStart(3, "0"),
+  employee_code: "D00" + (employees.value.length + 1).toString().padStart(3, "0"),
   first_name: "",
   last_name: "",
   email: "",
@@ -492,20 +546,11 @@ const createInitialForm = (): EmployeePayload => ({
 
 const form = reactive<EmployeePayload>(createInitialForm());
 
-watch(() => employees.value.length, (newLength) => {
-  if (!isEditing.value) {
-    form.employee_code = "D00" + (newLength + 1).toString().padStart(3, "0");
-  }
-});
-
 const isEditing = computed(() => editingEmployeeId.value !== null);
 
 const filteredEmployees = computed(() => {
   const query = searchQuery.value.trim().toLowerCase();
-
-  if (!query) {
-    return employees.value;
-  }
+  if (!query) return employees.value;
 
   return employees.value.filter((employee) => {
     const haystack = [
@@ -527,9 +572,7 @@ const filteredEmployees = computed(() => {
   });
 });
 
-const resetForm = () => {
-  Object.assign(form, createInitialForm());
-};
+const resetForm = () => Object.assign(form, createInitialForm());
 
 const normalizeEmployeeForForm = (employee: any): EmployeePayload => ({
   employee_code: employee.employee_code ?? "",
@@ -540,36 +583,14 @@ const normalizeEmployeeForForm = (employee: any): EmployeePayload => ({
   designation: employee.designation ?? "",
   mobile_number: employee.mobile_number ?? "",
   gender: employee.gender ?? "",
-  date_of_birth: employee.date_of_birth
-    ? String(employee.date_of_birth).slice(0, 10)
-    : "",
-  date_of_joining: employee.date_of_joining
-    ? String(employee.date_of_joining).slice(0, 10)
-    : "",
-  reporting_time: employee.reporting_time
-    ? String(employee.reporting_time).slice(0, 5)
-    : "",
+  date_of_birth: employee.date_of_birth ? String(employee.date_of_birth).slice(0, 10) : "",
+  date_of_joining: employee.date_of_joining ? String(employee.date_of_joining).slice(0, 10) : "",
+  reporting_time: employee.reporting_time ? String(employee.reporting_time).slice(0, 5) : "",
   work_location: employee.work_location ?? "",
   employee_type: employee.employee_type ?? "",
   reporting_manager_id: employee.reporting_manager_id ?? null,
   remarks: employee.remarks ?? "",
 });
-
-const fetchEmployees = async () => {
-  loading.value = true;
-
-  try {
-    const result = await listEmployees(props.endpointBase);
-    if (result.ok) {
-      employees.value = result.data;
-      return;
-    }
-
-    toastStore.error(result.message);
-  } finally {
-    loading.value = false;
-  }
-};
 
 const openCreateForm = () => {
   editingEmployeeId.value = null;
@@ -577,8 +598,7 @@ const openCreateForm = () => {
 };
 
 const openEditForm = (employee: any) => {
-  editingEmployeeId.value =
-    employee.id ?? employee.user_id ?? employee.employee_id;
+  editingEmployeeId.value = employee.id ?? employee.user_id ?? employee.employee_id;
   Object.assign(form, normalizeEmployeeForForm(employee));
 };
 
@@ -618,39 +638,33 @@ const handleSubmit = async () => {
   }
 };
 
-const getEmployeeKey = (employee: any) =>
-  employee.id ?? employee.user_id ?? employee.employee_id ?? employee.email;
+const getEmployeeKey = (employee: any) => employee.id ?? employee.user_id ?? employee.employee_id ?? employee.email;
 
 const getFullName = (employee: any) => {
-  const name =
-    `${employee.first_name ?? ""} ${employee.last_name ?? ""}`.trim();
+  const name = `${employee.first_name ?? ""} ${employee.last_name ?? ""}`.trim();
   return name || employee.email || "Unknown employee";
 };
 
 const getInitials = (employee: any) => {
   const first = employee.first_name?.charAt(0) ?? "";
   const last = employee.last_name?.charAt(0) ?? "";
-  return (
-    `${first}${last}`.trim() || employee.email?.charAt(0)?.toUpperCase() || "E"
-  );
+  return `${first}${last}`.trim() || employee.email?.charAt(0)?.toUpperCase() || "E";
 };
 
 const formatDate = (value: string) => {
-  if (!value) {
-    return "Not set";
-  }
-
+  if (!value) return "Not set";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(date);
+  return Number.isNaN(date.getTime())
+    ? value
+    : new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", year: "numeric" }).format(date);
 };
+
+watch(() => employees.value.length, (newLength) => {
+  if (!isEditing.value) {
+    form.employee_code = "D00" + (newLength + 1).toString().padStart(3, "0");
+  }
+});
 
 onMounted(fetchEmployees);
 </script>
+

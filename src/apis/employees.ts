@@ -67,11 +67,12 @@ function getMessage(payload: any, fallback: string) {
 export function useEmployeesApi() {
   const { call } = useApi()
 
-  const listEmployees = async (basePath: string) => {
+  const listEmployees = async (basePath: string, params?: Record<string, any>) => {
     let errorMessage = 'Failed to load employees'
 
     const response = await call(basePath, {
       method: 'GET',
+      params,
       onError: (error) => {
         errorMessage = getMessage(error?.data, errorMessage)
       }

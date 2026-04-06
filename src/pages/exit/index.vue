@@ -50,7 +50,7 @@
         <button
           class="oe-flex oe-items-center oe-gap-2 oe-bg-white oe-border oe-border-gray-200 oe-px-6 oe-rounded-2xl hover:oe-bg-gray-50 oe-transition-colors"
         >
-          <span>🔽</span>
+          <span><Icon icon="lucide:filter" /></span>
           <span class="oe-font-medium">Filter</span>
         </button>
       </div>
@@ -130,7 +130,7 @@
           </div>
         </div>
 
-        <p class="oe-text-gray-600 mb-10">
+        <p class="oe-text-gray-600 oe-mb-2">
           7-phase exit workflow from resignation to final closure & archiving
         </p>
 
@@ -158,7 +158,11 @@
                         : 'oe-bg-rose-100 oe-text-rose-600'
                     "
                   >
-                    {{ phase1Progress === 100 ? "✅" : "1" }}
+                    <!-- {{ phase1Progress === 100 ? <Icon icon="mdi:check" />: "1" }} -->
+                      <span v-if="phase1Progress === 100">
+                        <Icon icon="lucide:check" class="oe-w-5 oe-h-5 oe-text-white" />
+                      </span>
+                      <span v-else>1</span>
                   </div>
                   <div>
                     <p class="oe-font-semibold">
@@ -268,7 +272,10 @@
                         : 'oe-bg-emerald-100 oe-text-emerald-600'
                     "
                   >
-                    {{ phase2Progress === 100 ? "✅" : "2" }}
+                     <span v-if="phase2Progress === 100">
+                        <Icon icon="lucide:check" class="oe-w-5 oe-h-5 oe-text-white" />
+                      </span>
+                      <span v-else>2</span>
                   </div>
                   <div>
                     <p class="oe-font-semibold">Phase 2: Exit Initiation</p>
@@ -376,7 +383,11 @@
                         : 'oe-bg-purple-100 oe-text-purple-600'
                     "
                   >
-                    {{ phase3Progress === 100 ? "✅" : "3" }}
+                 
+                       <span v-if="phase3Progress === 100">
+                        <Icon icon="lucide:check" class="oe-w-5 oe-h-5 oe-text-white" />
+                      </span>
+                      <span v-else>3</span>
                   </div>
                   <div>
                     <p class="oe-font-semibold">Phase 3: Knowledge Transfer</p>
@@ -484,7 +495,10 @@
                         : 'oe-bg-amber-100 oe-text-amber-600'
                     "
                   >
-                    {{ phase4Progress === 100 ? "✅" : "4" }}
+                    <span v-if="phase4Progress === 100">
+                        <Icon icon="lucide:check" class="oe-w-5 oe-h-5 oe-text-white" />
+                      </span>
+                      <span v-else>4</span>
                   </div>
                   <div>
                     <p class="oe-font-semibold">Phase 4: Last Working Day</p>
@@ -576,6 +590,8 @@
 </template>
 
 <script setup>
+import { Icon } from '@iconify/vue';
+
 // Phase Toggle
 const openPhases = ref({ 1: true, 2: true, 3: true, 4: true });
 const togglePhase = (phase) =>

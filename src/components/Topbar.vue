@@ -97,7 +97,9 @@
               >
                 <div class="oe-flex oe-gap-3">
                   <div class="oe-flex-shrink-0 oe-mt-1">
-                    <span v-if="notification.notification_type === 'task_update'" class="oe-text-blue-500">📝</span>
+                    <span v-if="notification.notification_type === 'task_update'" class="oe-text-blue-500">
+                      <Icon icon="lucide:check-circle" class="oe-w-5 oe-h-5" />
+                    </span>
                     <span v-else class="oe-text-gray-500">🔔</span>
                   </div>
                   <div>
@@ -143,6 +145,7 @@ import { useAuthStore } from "~/stores/auth";
 import { useNotificationsStore } from "~/stores/notifications";
 import { useWebsocket } from "~/composables/useWebsocket";
 import { useRouter } from "vue-router";
+import { Icon } from "@iconify/vue";
 
 const authStore = useAuthStore();
 const notificationsStore = useNotificationsStore();
@@ -172,7 +175,7 @@ const formatDate = (dateString) => {
 
 const handleNotificationClick = async (notification) => {
   if (!notification.is_read) {
-    await notificationsStore.markAsRead(notification.id);
+    // await notificationsStore.markAsRead(notification.id);
   }
   
   if (notification.link) {

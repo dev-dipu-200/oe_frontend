@@ -178,7 +178,7 @@ const fetchTasks = async () => {
       q: searchQuery.value || undefined,
     }
 
-    const response = await fetchTasks(params) // Use the fetchTasks from the composable
+    const response = await fetchTasks(params)
 
     if (response) {
       tasks.value = response

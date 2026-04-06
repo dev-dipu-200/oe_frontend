@@ -170,7 +170,7 @@
             </div>
           </div>
 
-          <p class="oe-text-gray-600 mb-10">
+          <p class="oe-text-gray-600 oe-mb-2">
             Complete onboarding workflow from pre-joining to 15-day follow-up
           </p>
 
@@ -195,23 +195,11 @@
                       :class="
                         phase1Progress === 100
                           ? 'oe-bg-green-500 oe-text-white oe-size-8'
-                          : 'oe-bg-gray-100 oe-text-gray-600'
+                          : 'oe-bg-orange-400 oe-text-gray-600'
                       "
                     >
                       <span v-if="phase1Progress === 100">
-                        <svg
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          class="oe-w-5 oe-h-5"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
+                        <Icon icon="lucide:check" class="oe-w-5 oe-h-5 oe-text-white" />
                       </span>
                       <span v-else>1</span>
                     </div>
@@ -342,7 +330,10 @@
                           : 'oe-bg-blue-600 oe-text-white'
                       "
                     >
-                      {{ phase2Progress === 100 ? "✅" : "2" }}
+                       <span v-if="phase2Progress === 100">
+                        <Icon icon="lucide:check" class="oe-w-5 oe-h-5 oe-text-white" />
+                      </span>
+                      <span v-else>2</span>
                     </div>
                     <div>
                       <p class="oe-font-semibold">
@@ -471,7 +462,10 @@
                           : 'oe-bg-purple-600 oe-text-white'
                       "
                     >
-                      {{ phase3Progress === 100 ? "✅" : "3" }}
+                       <span v-if="phase3Progress === 100">
+                        <Icon icon="lucide:check" class="oe-w-5 oe-h-5 oe-text-white" />
+                      </span>
+                      <span v-else>3</span>
                     </div>
                     <div>
                       <p class="oe-font-semibold">
@@ -600,7 +594,10 @@
                           : 'oe-bg-amber-600 oe-text-white'
                       "
                     >
-                      {{ phase4Progress === 100 ? "✅" : "4" }}
+                       <span v-if="phase4Progress === 100">
+                        <Icon icon="lucide:check" class="oe-w-5 oe-h-5 oe-text-white" />
+                      </span>
+                      <span v-else>4</span>
                     </div>
                     <div>
                       <p class="oe-font-semibold">

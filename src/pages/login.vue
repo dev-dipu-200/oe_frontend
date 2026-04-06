@@ -177,7 +177,6 @@ const handleLogin = async () => {
   }
 };
 
-// ✅ Role-based redirect
 function getDashboardRoute(role) {
   switch (role) {
     case "SUPER_ADMIN":

@@ -18,6 +18,14 @@ export type EmployeePayload = {
   remarks: string
 }
 
+export type EmployeeExitPayload = {
+  reason_for_exit: string
+  resignation_date: string
+  resignation_received_date: string
+  resignation_document: string
+  remarks: string
+}
+
 function unwrapApiData(payload: any) {
   if (!payload || typeof payload !== 'object') {
     return payload
@@ -138,10 +146,33 @@ export function useEmployeesApi() {
     }
   }
 
+  const createEmployeeExit = async (
+    basePath: string,
+    employeeId: number | string,
+    payload: EmployeeExitPayload
+  ) => {
+    let errorMessage = 'Failed to initiate employee exit'
+
+    const response = await call(`${basePath}/${employeeId}/exit`, {
+      method: 'POST',
+      body: payload,
+      onError: (error) => {
+        errorMessage = getMessage(error?.data, errorMessage)
+      }
+    })
+
+    return {
+      ok: !!response,
+      data: unwrapApiData(response),
+      message: response ? getMessage(response, 'Employee exit initiated successfully') : errorMessage
+    }
+  }
+
   return {
     listEmployees,
     getEmployee,
     createEmployee,
-    updateEmployee
+    updateEmployee,
+    createEmployeeExit
   }
 }

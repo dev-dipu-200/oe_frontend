@@ -713,11 +713,17 @@
 </template>
 
 <script setup>
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useEmployeesApi } from "@/apis/employees";
 import { useAuthStore } from "@/stores/auth";
+import { useApi } from "@/composables/useApi";
+import { useWebsocket } from "@/composables/useWebsocket";
 
 const { listEmployees, getEmployee } = useEmployeesApi();
 const authStore = useAuthStore();
+const { onMessageReceived } = useWebsocket();
+
+let unsubscribeWS = null;
 
 const loadingEmployees = ref(true);
 const loadingDetails = ref(false);
@@ -753,21 +759,40 @@ const phase4Name = ref("");
 const phase4Description = ref("");
 const phase4Tasks = ref([]);
 
+/*
+ @param status 
+
+ curl -X 'PATCH' \
+  'http://localhost:8000/employee/employees/1/phases/1/tasks/2/status' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdXBlckB5b3BtYWlsLmNvbSIsImV4cCI6MTc3NTQ1OTQyM30.7DNIoLpWfyu_ic05qkRxjSFLCHk5CKWjmp-638RLIJU' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "status": "done",
+  "reason": "string",
+  "comments": "string"
+}'
+ */
+
 const mapStatusToUI = (status) => {
   if (!status) return "Pending";
+
   const mapping = {
     pending: "Pending",
+    inprogress: "In Process",
     started: "In Process",
-    completed: "Done",
+    done: "Done",
+    cancelled: "Cancelled",
     hold: "Hold",
   };
   return mapping[status.toLowerCase()] || "Pending";
 };
 
-const mapApiTasks = (apiTasks) => {
+const mapApiTasks = (apiTasks, phaseId) => {
   if (!apiTasks) return [];
   return apiTasks.map((t) => ({
     id: t.id,
+    phase_id: phaseId,
     title: t.task_name,
     subtitle: t.description,
     assigned: t.assigned_role,
@@ -810,7 +835,7 @@ const selectEmployee = async (employee) => {
         if (p1) {
           phase1Name.value = p1.phase_name;
           phase1Description.value = p1.description;
-          phase1Tasks.value = mapApiTasks(p1.tasks);
+          phase1Tasks.value = mapApiTasks(p1.tasks, p1.id);
         } else {
           phase1Tasks.value = [];
         }
@@ -820,7 +845,7 @@ const selectEmployee = async (employee) => {
         if (p2) {
           phase2Name.value = p2.phase_name;
           phase2Description.value = p2.description;
-          phase2Tasks.value = mapApiTasks(p2.tasks);
+          phase2Tasks.value = mapApiTasks(p2.tasks, p2.id);
         } else {
           phase2Tasks.value = [];
         }
@@ -830,7 +855,7 @@ const selectEmployee = async (employee) => {
         if (p3) {
           phase3Name.value = p3.phase_name;
           phase3Description.value = p3.description;
-          phase3Tasks.value = mapApiTasks(p3.tasks);
+          phase3Tasks.value = mapApiTasks(p3.tasks, p3.id);
         } else {
           phase3Tasks.value = [];
         }
@@ -840,7 +865,7 @@ const selectEmployee = async (employee) => {
         if (p4) {
           phase4Name.value = p4.phase_name;
           phase4Description.value = p4.description;
-          phase4Tasks.value = mapApiTasks(p4.tasks);
+          phase4Tasks.value = mapApiTasks(p4.tasks, p4.id);
         } else {
           phase4Tasks.value = [];
         }
@@ -911,16 +936,59 @@ const fetchEmployees = async () => {
   }
 };
 
+const mapUIToStatus = (uiStatus) => {
+  const mapping = {
+    "Pending": "pending",
+    "In Process": "inprogress",
+    "Done": "done",
+    "Hold": "hold",
+  };
+  return mapping[uiStatus] || "pending";
+};
+
 // Status Toggling
-const toggleTaskStatus = (task) => {
+const toggleTaskStatus = async (task) => {
   const statuses = ["Pending", "In Process", "Done", "Hold"];
   const currentIndex = statuses.indexOf(task.status);
   const nextIndex = (currentIndex + 1) % statuses.length;
-  task.status = statuses[nextIndex];
+  const newStatus = statuses[nextIndex];
+  await updateTaskStatusDirectly(task, newStatus);
 };
 
-const updateTaskStatus = (tasksArray, index, newStatus) => {
-  tasksArray[index].status = newStatus;
+const updateTaskStatus = async (tasksArray, index, newStatus) => {
+  const task = tasksArray[index];
+  await updateTaskStatusDirectly(task, newStatus);
+};
+
+const updateTaskStatusDirectly = async (task, newStatus) => {
+  const oldStatus = task.status;
+  task.status = newStatus;
+
+  try {
+    const { call } = useApi();
+    
+    // http://localhost:8000/employee/employees/1/phases/1/tasks/2/status
+    const endpoint = `/employee/employees/${selectedEmployee.value.id}/phases/${task.phase_id}/tasks/${task.id}/status`;
+
+    const payload = {
+      status: mapUIToStatus(newStatus),
+      reason: "Status updated from UI",
+      comments: ""
+    };
+
+    const response = await call(endpoint, {
+      method: 'PATCH',
+      body: payload
+    });
+
+    if (!response) {
+      task.status = oldStatus;
+      console.error("Failed to update task status");
+    }
+  } catch (error) {
+    task.status = oldStatus;
+    console.error("Error updating task status:", error);
+  }
 };
 
 // Progress Computations
@@ -980,5 +1048,52 @@ const overallProgress = computed(() =>
     : 0,
 );
 
-onMounted(fetchEmployees);
+const handleRealtimeTaskUpdate = (data) => {
+  const { task_id, status, phase_id, employee_id, phase_status, overall_status } = data;
+
+  // 1. Update overall employee status in the list if visible
+  const employee = allEmployees.value.find(e => e.id === employee_id);
+  if (employee) {
+    if (overall_status) {
+      employee.status = overall_status.toUpperCase();
+      employee.statusClass = overall_status === "completed" 
+        ? "oe-bg-green-100 oe-text-green-700" 
+        : "oe-bg-blue-100 oe-text-blue-700";
+    }
+  }
+
+  // 2. Update task in the current selected employee workflow
+  if (selectedEmployee.value && selectedEmployee.value.id === employee_id) {
+    const allPhaseTasks = [
+      phase1Tasks.value,
+      phase2Tasks.value,
+      phase3Tasks.value,
+      phase4Tasks.value
+    ];
+
+    for (const tasks of allPhaseTasks) {
+      const task = tasks.find(t => t.id === task_id);
+      if (task) {
+        task.status = mapStatusToUI(status);
+        break;
+      }
+    }
+  }
+};
+
+onMounted(() => {
+  fetchEmployees();
+
+  // Listen for real-time updates
+  unsubscribeWS = onMessageReceived((message) => {
+    if (message.type === "task_status_updated") {
+      const updateData = message.data;
+      handleRealtimeTaskUpdate(updateData);
+    }
+  });
+});
+
+onUnmounted(() => {
+  if (unsubscribeWS) unsubscribeWS();
+});
 </script>

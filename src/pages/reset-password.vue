@@ -26,15 +26,15 @@
           <form class="oe-mt-8 oe-space-y-6" @submit.prevent="handleResetPassword">
             <div class="oe-rounded-md oe-space-y-4">
               <div>
-                <label for="password" class="oe-sr-only">New Password</label>
+                <label for="new_password" class="oe-sr-only">New Password</label>
                 <input
-                  id="password"
-                  name="password"
+                  id="new_password"
+                  name="new_password"
                   type="password"
                   required
                   class="oe-appearance-none oe-relative oe-block oe-w-full oe-px-4 oe-py-3 oe-border oe-border-white/30 oe-bg-white/10 oe-placeholder-gray-200 oe-text-white oe-rounded-lg focus:oe-outline-none focus:oe-ring-2 focus:oe-ring-blue-300 focus:oe-border-blue-300 sm:oe-text-sm oe-transition-all oe-duration-200"
                   placeholder="New Password"
-                  v-model="password"
+                  v-model="new_password"
                 />
               </div>
               <div>
@@ -81,9 +81,10 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { useRoute, useRouter } from 'vue-router'
 import { useToastStore } from '@/stores/toast'
+import { useRoute, useRouter } from 'vue-router'
 
 definePageMeta({
   layout: 'auth'
@@ -94,30 +95,30 @@ const toastStore = useToastStore()
 const route = useRoute()
 const router = useRouter()
 
-const password = ref('')
+const new_password = ref('')
 const password_confirmation = ref('')
 const loading = ref(false)
 
 const handleResetPassword = async () => {
-  if (password.value !== password_confirmation.value) {
-    toastStore.addToast({
-      message: 'Passwords do not match.',
-      type: 'error',
-    })
+  if (new_password.value !== password_confirmation.value) {
+    toastStore.error('Passwords do not match.')
     return
   }
 
   loading.value = true
-  const success = await authStore.resetPassword({
-    token: route.query.token,
-    email: route.query.email,
-    password: password.value,
-    password_confirmation: password_confirmation.value,
-  })
-  
-  if (success) {
-    router.push('/login')
+  try {
+    const success = await authStore.resetPassword({
+      token: route.query.token,
+      new_password: new_password.value,
+    })
+    
+    if (success) {
+      router.push('/login')
+    }
+  } catch (error) {
+    console.error('Reset password error:', error)
+  } finally {
+    loading.value = false
   }
-  loading.value = false
 }
 </script>

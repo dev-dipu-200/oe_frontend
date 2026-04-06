@@ -45,7 +45,7 @@
             placeholder="Search tasks or employees..."
             class="oe-w-full oe-bg-white oe-border oe-border-gray-200 oe-rounded-2xl oe-pl-12 oe-py-3.5 oe-text-sm focus:oe-outline-none focus:oe-border-blue-500 oe-transition-colors"
           />
-          <div class="oe-absolute oe-left-5 oe-top-1/2 -translate-y-1/2 text-gray-400">
+          <div class="oe-absolute oe-left-5 oe-top-1/4 -translate-y-1/2 text-gray-400">
             🔍
           </div>
         </div>
@@ -161,16 +161,16 @@ const loading = ref(false)
 
 const tabs = [
   { key: 'all', label: 'All', count: 0 },
-  { key: 'overdue', label: 'Overdue', count: 0 },
-  { key: 'in-progress', label: 'In Progress', count: 0 },
+  { key: 'inprogress', label: 'In Progress', count: 0 },
   { key: 'pending', label: 'Pending', count: 0 },
-  { key: 'completed', label: 'Completed', count: 0 },
+  { key: 'hold', label: 'On Hold', count: 0 },
+  { key: 'done', label: 'Completed', count: 0 },
 ]
 
 const fetchTasks = async () => {
   loading.value = true
   const toastStore = useToastStore()
-  const { fetchTasks } = useTasksApi() // Initialize the tasks API composable
+  const { fetchTasks } = useTasksApi()
 
   try {
     const params = {

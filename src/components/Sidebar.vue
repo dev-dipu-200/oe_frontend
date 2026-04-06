@@ -224,19 +224,19 @@ const allLinks = [
     to: "/tasks",
     label: "Tasks",
     icon: ClipboardIcon,
-    roles: ["HR", "UIUX_DESIGNER"],
+    roles: ["HR", "UIUX_DESIGNER", "NETWORK", "ADMIN", "SUPER_ADMIN", "MANAGER"],
   },
   {
     to: "/onboarding",
     label: "Onboarding",
     icon: ClipboardIcon,
-    roles: ["HR", "SUPER_ADMIN", "UIUX_DESIGNER"],
+    roles: ["HR", "SUPER_ADMIN", "UIUX_DESIGNER", "NETWORK", "ADMIN", "MANAGER"],
   },
   {
     to: "/exit",
     label: "Exit",
     icon: ClipboardIcon,
-    roles: ["HR", "SUPER_ADMIN", "UIUX_DESIGNER"],
+    roles: ["HR", "SUPER_ADMIN", "UIUX_DESIGNER", "NETWORK", "ADMIN", "MANAGER"],
   },
 
   // Employee specific

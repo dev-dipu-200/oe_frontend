@@ -13,7 +13,7 @@
             Manage new employee onboarding workflows
           </p>
         </div>
-        <button
+        <!-- <button
           class="oe-bg-blue-600 hover:oe-bg-blue-700 oe-text-white oe-px-6 oe-py-3 oe-rounded-xl oe-flex oe-items-center oe-gap-2 oe-font-medium transition-colors shadow-lg shadow-blue-500/20"
         >
           <span class="oe-text-xl oe-text-white">
@@ -32,7 +32,7 @@
             </svg>
           </span>
           New Onboarding
-        </button>
+        </button> -->
       </div>
 
       <!-- Search & Filter -->

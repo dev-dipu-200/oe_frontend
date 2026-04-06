@@ -55,6 +55,21 @@ export function useApi() {
     } catch (error: any) {
       console.error(`API error [${endpoint}]:`, error);
 
+      // Handle 401 Unauthorized
+      if (error.status === 401 || error.response?.status === 401) {
+        console.warn("Unauthorized access - redirecting to login");
+        authStore.clearAuth();
+        
+        // Clear cookies manually if clearAuth doesn't handle them all
+        const authCookie = useCookie("auth_token");
+        const userCookie = useCookie("auth_user");
+        authCookie.value = null;
+        userCookie.value = null;
+
+        // Redirect to login
+        navigateTo("/login");
+      }
+
       if (options.onError) {
         options.onError(error);
       }

@@ -1,15 +1,12 @@
 import { config } from "dotenv"
 
-// 🔥 Detect environment
 const env = process.env.NUXT_ENV || "dev"
 
-// 🔥 Load correct env file
 config({ path: `.env.${env}` })
 
 const isDev = env === "dev"
 const isProd = env === "prod"
 
-// 🔥 Dynamic port
 const port = Number(process.env.PORT) || 3000
 
 export default defineNuxtConfig({
@@ -24,7 +21,6 @@ export default defineNuxtConfig({
   srcDir: "./src",
   compatibilityDate: "2025-07-15",
 
-  // ✅ Devtools only in dev
   devtools: { enabled: isDev },
 
   modules: [
@@ -35,8 +31,9 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      // ✅ NO 0.0.0.0 anymore
-      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || ""
+      apiBaseUrl: process.env.NODE_ENV === 'dev'
+        ? '/api'
+        : (process.env.NUXT_PUBLIC_API_BASE_URL || "")
     },
   },
 
@@ -64,16 +61,13 @@ export default defineNuxtConfig({
       watch: {
         usePolling: true,
       },
-
-      // ✅ HMR only in DEV
-      hmr: isDev
-        ? {
-            host: "onboarding-exit-ui.devtrust.biz",
-            protocol: "wss",
-            clientPort: 443,
-            port
-          }
-        : false,
+      proxy: {
+        '/api': {
+          target: 'https://onboarding-exit-api.devtrust.biz',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ''),
+        },
+      },
     },
   },
 

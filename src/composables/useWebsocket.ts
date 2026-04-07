@@ -1,4 +1,4 @@
-import { ref, onUnmounted, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useToastStore } from '@/stores/toast';
 import { useNotificationsStore } from '@/stores/notifications';
@@ -46,14 +46,9 @@ export function useWebsocket() {
       try {
         const message = JSON.parse(event.data);
         console.log("Received WebSocket message:", message);
-
-        // Notify all registered callbacks
         callbacks.forEach(cb => cb(message));
-
-        // Handle generic notifications
         if (message.type === "notification") {
           toastStore.success(message.data.message || message.data.title);
-          // Add to notifications store
           notificationsStore.addNotification(message.data);
         }
       } catch (e) {
@@ -65,8 +60,6 @@ export function useWebsocket() {
       console.log("WebSocket disconnected. Reconnecting...");
       isConnected.value = false;
       socket.value = null;
-      
-      // Simple reconnect logic
       reconnectTimeout.value = setTimeout(() => {
         connect();
       }, 3000);
@@ -90,7 +83,6 @@ export function useWebsocket() {
     isConnected.value = false;
   };
 
-  // Watch for auth changes
   watch(() => authStore.user?.id, (newId) => {
     if (newId) {
       connect();

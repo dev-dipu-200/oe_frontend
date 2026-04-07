@@ -26,13 +26,13 @@
           </div>
 
           <div class="oe-flex oe-flex-wrap oe-gap-3">
-            <button
+            <!-- <button
               @click="fetchUsers"
               type="button"
               class="oe-rounded-2xl oe-border oe-border-slate-200 oe-bg-white oe-px-4 oe-py-3 oe-text-sm oe-font-medium oe-text-slate-700 hover:oe-bg-slate-50"
             >
               Refresh
-            </button>
+            </button> -->
            
           </div>
         </div>
@@ -237,6 +237,7 @@
 
 <script setup lang="ts">
 import { useUsersApi, type UserPayload } from "@/apis/users";
+import { validateUniqueField } from "@/composables/useFieldValidation";
 import { useToastStore } from "@/stores/toast";
 
 const props = defineProps<{
@@ -320,6 +321,19 @@ const openEditForm = (user: any) => {
 };
 
 const handleSubmit = async () => {
+  const emailUniqueError = validateUniqueField({
+    fieldLabel: "Email",
+    value: form.email,
+    items: users.value,
+    getValue: (user: any) => user.email,
+    getId: (user: any) => getUserKey(user),
+    currentId: editingUserId.value,
+  });
+  if (emailUniqueError) {
+    toastStore.error(emailUniqueError);
+    return;
+  }
+
   submitting.value = true;
 
   try {

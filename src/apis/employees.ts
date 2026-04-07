@@ -168,11 +168,29 @@ export function useEmployeesApi() {
     }
   }
 
+  const deleteEmployee = async (basePath: string, employeeId: number | string) => {
+    let errorMessage = 'Failed to delete employee'
+
+    const response = await call(`${basePath}/${employeeId}`, {
+      method: 'DELETE',
+      onError: (error) => {
+        errorMessage = getMessage(error?.data, errorMessage)
+      }
+    })
+
+    return {
+      ok: !!response,
+      data: unwrapApiData(response),
+      message: response ? getMessage(response, 'Employee deleted successfully') : errorMessage
+    }
+  }
+
   return {
     listEmployees,
     getEmployee,
     createEmployee,
     updateEmployee,
-    createEmployeeExit
+    createEmployeeExit,
+    deleteEmployee
   }
 }

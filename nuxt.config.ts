@@ -45,7 +45,7 @@ export default defineNuxtConfig({
 
   vite: {
     ssr: {
-      noExternal: ["vue", "vue-router", "vue3-toastify", "@iconify/vue"],
+      noExternal: ["vue", "vue-router", "vue3-toastify", "@iconify/vue", "nuxt-icon", "@pinia/nuxt"],
     },
 
     optimizeDeps: {

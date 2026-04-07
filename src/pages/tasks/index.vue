@@ -205,7 +205,6 @@ const fetchTasks = async () => {
     });
 
     const response = await fetchTasks(params);
-    console.log("Data________________", response);
     
     tasks.value = response?.data?.tasks || [];
   } catch (error) {

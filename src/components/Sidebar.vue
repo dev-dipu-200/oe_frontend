@@ -189,6 +189,12 @@ const allLinks = [
     icon: HomeIcon,
     roles: ["EMPLOYEE"],
   },
+  {
+    to: "/manager/dashboard",
+    label: "Dashboard",
+    icon: HomeIcon,
+    roles: ["MANAGER"],
+  },
 
   // Super Admin specific
   {

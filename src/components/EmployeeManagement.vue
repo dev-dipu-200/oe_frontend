@@ -34,13 +34,6 @@
               <span>🔽</span>
               Filter
             </button>
-            <button
-              @click="fetchEmployees"
-              type="button"
-              class="oe-rounded-2xl oe-border oe-border-slate-200 oe-bg-white oe-px-4 oe-py-3 oe-text-sm oe-font-medium oe-text-slate-700 hover:oe-bg-slate-50"
-            >
-              Refresh
-            </button>
           </div>
         </div>
       </section>
@@ -179,13 +172,67 @@
                   </div>
                 </div>
 
-                <button
-                  @click="openEditForm(employee)"
-                  type="button"
-                  class="oe-rounded-2xl oe-border oe-border-slate-200 oe-bg-slate-50 oe-px-4 oe-py-2.5 oe-text-sm oe-font-medium oe-text-slate-700 hover:oe-bg-slate-100"
-                >
-                  Edit Employee
-                </button>
+                <div class="oe-flex oe-items-center oe-gap-2">
+                  <button
+                    @click="openEditForm(employee)"
+                    type="button"
+                    title="Update Employee"
+                    aria-label="Update Employee"
+                    class="oe-flex oe-h-10 oe-w-10 oe-items-center oe-justify-center oe-rounded-xl oe-border oe-border-slate-200 oe-bg-slate-50 oe-text-slate-700 hover:oe-bg-slate-100"
+                  >
+                    <svg class="oe-h-4 oe-w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+                    </svg>
+                  </button>
+                  <button
+                    @click="openExitForm(employee)"
+                    type="button"
+                    title="Initiate Exit"
+                    aria-label="Initiate Exit"
+                    class="oe-flex oe-h-10 oe-w-10 oe-items-center oe-justify-center oe-rounded-xl oe-border oe-border-rose-200 oe-bg-rose-50 oe-text-rose-700 hover:oe-bg-rose-100"
+                  >
+                    <svg class="oe-h-4 oe-w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <path d="M16 17l5-5-5-5" />
+                      <path d="M21 12H9" />
+                    </svg>
+                  </button>
+                  <button
+                    v-if="canDeleteEmployees"
+                    @click="handleDeleteEmployee(employee)"
+                    type="button"
+                    :disabled="deletingEmployeeId === getEmployeeKey(employee)"
+                    title="Delete Employee"
+                    aria-label="Delete Employee"
+                    class="oe-flex oe-h-10 oe-w-10 oe-items-center oe-justify-center oe-rounded-xl oe-border oe-border-red-200 oe-bg-red-50 oe-text-red-700 hover:oe-bg-red-100 disabled:oe-cursor-not-allowed disabled:oe-opacity-60"
+                  >
+                    <svg
+                      v-if="deletingEmployeeId === getEmployeeKey(employee)"
+                      class="oe-h-4 oe-w-4 oe-animate-spin"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+                    </svg>
+                    <svg
+                      v-else
+                      class="oe-h-4 oe-w-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M3 6h18" />
+                      <path d="M8 6V4h8v2" />
+                      <path d="M19 6l-1 14H6L5 6" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </article>
           </div>
@@ -304,6 +351,8 @@
                 <input
                   v-model="form.mobile_number"
                   type="text"
+                  maxlength="10"
+                  inputmode="numeric"
                   class="oe-w-full oe-rounded-2xl oe-border oe-border-slate-200 oe-px-4 oe-py-3 oe-text-sm focus:oe-border-blue-500 focus:oe-outline-none"
                 />
               </label>
@@ -428,14 +477,103 @@
         </aside>
       </section>
     </div>
+
+    <Dialog
+      v-model="exitDialogOpen"
+      title="Initiate Employee Exit"
+      max-width="lg"
+    >
+      <div class="oe-space-y-4">
+        <p class="oe-text-sm oe-text-slate-500">
+          {{
+            selectedExitEmployee
+              ? `Creating exit process for ${getFullName(selectedExitEmployee)}`
+              : "Create employee exit process"
+          }}
+        </p>
+
+        <label class="oe-block oe-space-y-2">
+          <span class="oe-text-sm oe-font-medium oe-text-slate-700">Reason For Exit</span>
+          <input
+            v-model="exitForm.reason_for_exit"
+            type="text"
+            required
+            placeholder="Enter reason for exit"
+            class="oe-w-full oe-rounded-2xl oe-border oe-border-slate-200 oe-px-4 oe-py-3 oe-text-sm focus:oe-border-blue-500 focus:oe-outline-none"
+          />
+        </label>
+
+        <div class="oe-grid oe-grid-cols-1 md:oe-grid-cols-2 oe-gap-4">
+          <label class="oe-block oe-space-y-2">
+            <span class="oe-text-sm oe-font-medium oe-text-slate-700">Resignation Date</span>
+            <input
+              v-model="exitForm.resignation_date"
+              type="date"
+              required
+              class="oe-w-full oe-rounded-2xl oe-border oe-border-slate-200 oe-px-4 oe-py-3 oe-text-sm focus:oe-border-blue-500 focus:oe-outline-none"
+            />
+          </label>
+
+          <label class="oe-block oe-space-y-2">
+            <span class="oe-text-sm oe-font-medium oe-text-slate-700">Resignation Received Date</span>
+            <input
+              v-model="exitForm.resignation_received_date"
+              type="date"
+              required
+              class="oe-w-full oe-rounded-2xl oe-border oe-border-slate-200 oe-px-4 oe-py-3 oe-text-sm focus:oe-border-blue-500 focus:oe-outline-none"
+            />
+          </label>
+        </div>
+
+        <label class="oe-block oe-space-y-2">
+          <span class="oe-text-sm oe-font-medium oe-text-slate-700">Resignation Document</span>
+          <input
+            v-model="exitForm.resignation_document"
+            type="text"
+            placeholder="Document URL or reference"
+            class="oe-w-full oe-rounded-2xl oe-border oe-border-slate-200 oe-px-4 oe-py-3 oe-text-sm focus:oe-border-blue-500 focus:oe-outline-none"
+          />
+        </label>
+
+        <label class="oe-block oe-space-y-2">
+          <span class="oe-text-sm oe-font-medium oe-text-slate-700">Remarks</span>
+          <textarea
+            v-model="exitForm.remarks"
+            rows="3"
+            placeholder="Enter remarks"
+            class="oe-w-full oe-rounded-2xl oe-border oe-border-slate-200 oe-px-4 oe-py-3 oe-text-sm focus:oe-border-blue-500 focus:oe-outline-none"
+          ></textarea>
+        </label>
+      </div>
+
+      <template #footer>
+        <button
+          @click="closeExitForm"
+          type="button"
+          class="oe-rounded-2xl oe-border oe-border-slate-200 oe-bg-white oe-px-4 oe-py-2 oe-text-sm oe-font-medium oe-text-slate-700 hover:oe-bg-slate-50"
+        >
+          Cancel
+        </button>
+        <button
+          @click="submitExitForm"
+          :disabled="exitSubmitting"
+          type="button"
+          class="oe-rounded-2xl oe-bg-rose-600 oe-px-4 oe-py-2 oe-text-sm oe-font-medium oe-text-white hover:oe-bg-rose-700 disabled:oe-cursor-not-allowed disabled:oe-opacity-60"
+        >
+          {{ exitSubmitting ? "Submitting..." : "Create Exit" }}
+        </button>
+      </template>
+    </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted } from 'vue';
-import { useEmployeesApi, type EmployeePayload } from "@/apis/employees";
+import { useEmployeesApi, type EmployeePayload, type EmployeeExitPayload } from "@/apis/employees";
+import { validateFieldByName, validateUniqueField } from "@/composables/useFieldValidation";
 import { useToastStore } from "@/stores/toast";
 import FilterDrawer from "@/components/FilterDrawer.vue";
+import Dialog from "@/components/Dialog.vue";
 
 const props = defineProps<{
   title: string;
@@ -444,13 +582,27 @@ const props = defineProps<{
 }>();
 
 const toastStore = useToastStore();
-const { listEmployees, createEmployee, updateEmployee } = useEmployeesApi();
+const { listEmployees, createEmployee, updateEmployee, createEmployeeExit, deleteEmployee } = useEmployeesApi();
 
 const loading = ref(true);
 const submitting = ref(false);
 const searchQuery = ref("");
 const employees = ref<any[]>([]);
 const editingEmployeeId = ref<number | string | null>(null);
+const exitDialogOpen = ref(false);
+const exitSubmitting = ref(false);
+const selectedExitEmployee = ref<any | null>(null);
+const deletingEmployeeId = ref<number | string | null>(null);
+
+const createInitialExitForm = (): EmployeeExitPayload => ({
+  reason_for_exit: "",
+  resignation_date: "",
+  resignation_received_date: "",
+  resignation_document: "",
+  remarks: "",
+});
+
+const exitForm = reactive<EmployeeExitPayload>(createInitialExitForm());
 
 const isFilterDrawerOpen = ref(false);
 
@@ -547,6 +699,9 @@ const createInitialForm = (): EmployeePayload => ({
 const form = reactive<EmployeePayload>(createInitialForm());
 
 const isEditing = computed(() => editingEmployeeId.value !== null);
+const canDeleteEmployees = computed(() =>
+  props.endpointBase === "/hr/employees" || props.endpointBase === "/super-admin/employees"
+);
 
 const filteredEmployees = computed(() => {
   const query = searchQuery.value.trim().toLowerCase();
@@ -602,12 +757,139 @@ const openEditForm = (employee: any) => {
   Object.assign(form, normalizeEmployeeForForm(employee));
 };
 
+const openExitForm = (employee: any) => {
+  selectedExitEmployee.value = employee;
+  Object.assign(exitForm, createInitialExitForm());
+  exitDialogOpen.value = true;
+};
+
+const closeExitForm = () => {
+  exitDialogOpen.value = false;
+  selectedExitEmployee.value = null;
+};
+
+const submitExitForm = async () => {
+  const employee = selectedExitEmployee.value;
+  const employeeId = employee?.id ?? employee?.user_id ?? employee?.employee_id;
+
+  if (!employeeId) {
+    toastStore.error("Unable to identify employee for exit process.");
+    return;
+  }
+
+  if (!exitForm.reason_for_exit.trim()) {
+    toastStore.error("Reason for exit is required.");
+    return;
+  }
+
+  if (!exitForm.resignation_date) {
+    toastStore.error("Resignation date is required.");
+    return;
+  }
+
+  if (!exitForm.resignation_received_date) {
+    toastStore.error("Resignation received date is required.");
+    return;
+  }
+
+  exitSubmitting.value = true;
+  try {
+    const payload: EmployeeExitPayload = {
+      reason_for_exit: exitForm.reason_for_exit.trim(),
+      resignation_date: exitForm.resignation_date,
+      resignation_received_date: exitForm.resignation_received_date,
+      resignation_document: exitForm.resignation_document.trim(),
+      remarks: exitForm.remarks.trim(),
+    };
+
+    const result = await createEmployeeExit(props.endpointBase, employeeId, payload);
+    if (!result.ok) {
+      toastStore.error(result.message);
+      return;
+    }
+
+    toastStore.success(result.message);
+    closeExitForm();
+    await fetchEmployees();
+  } finally {
+    exitSubmitting.value = false;
+  }
+};
+
+const handleDeleteEmployee = async (employee: any) => {
+  if (!canDeleteEmployees.value) {
+    return;
+  }
+
+  const employeeId = getEmployeeKey(employee);
+  if (!employeeId) {
+    toastStore.error("Unable to identify employee for deletion.");
+    return;
+  }
+
+  const employeeName = getFullName(employee);
+  const confirmed = window.confirm(
+    `Delete employee "${employeeName}"? This action cannot be undone.`
+  );
+  if (!confirmed) {
+    return;
+  }
+
+  deletingEmployeeId.value = employeeId;
+  try {
+    const result = await deleteEmployee(props.endpointBase, employeeId);
+    if (!result.ok) {
+      toastStore.error(result.message);
+      return;
+    }
+
+    toastStore.success(result.message);
+    await fetchEmployees();
+  } finally {
+    deletingEmployeeId.value = null;
+  }
+};
+
 const handleSubmit = async () => {
+  const mobileValidationError = validateFieldByName("mobile_number", form.mobile_number);
+  if (mobileValidationError) {
+    toastStore.error(mobileValidationError);
+    return;
+  }
+
+  const emailUniqueError = validateUniqueField({
+    fieldLabel: "Email",
+    value: form.email,
+    items: employees.value,
+    getValue: (employee: any) => employee.email,
+    getId: (employee: any) => getEmployeeKey(employee),
+    currentId: editingEmployeeId.value,
+  });
+  if (emailUniqueError) {
+    toastStore.error(emailUniqueError);
+    return;
+  }
+
+  const mobileUniqueError = validateUniqueField({
+    fieldLabel: "Mobile number",
+    value: form.mobile_number,
+    items: employees.value,
+    getValue: (employee: any) => employee.mobile_number,
+    getId: (employee: any) => getEmployeeKey(employee),
+    currentId: editingEmployeeId.value,
+    normalize: (value: string) => value.replace(/\D/g, ""),
+  });
+  if (mobileUniqueError) {
+    toastStore.error(mobileUniqueError);
+    return;
+  }
+
   submitting.value = true;
 
   try {
     const payload: EmployeePayload = {
       ...form,
+      mobile_number: String(form.mobile_number ?? "").replace(/\D/g, ""),
       reporting_manager_id:
         form.reporting_manager_id === null ||
         form.reporting_manager_id === undefined ||
@@ -667,4 +949,3 @@ watch(() => employees.value.length, (newLength) => {
 
 onMounted(fetchEmployees);
 </script>
-

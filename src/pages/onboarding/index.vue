@@ -231,10 +231,11 @@
                   v-if="openPhases[1]"
                   class="oe-px-6 oe-pb-6 oe-space-y-3 mt-4"
                 >
+                <!--  @click="toggleTaskStatus(task)" -->
                   <div
                     v-for="(task, index) in phase1Tasks"
                     :key="task.id"
-                    @click="toggleTaskStatus(task)"
+                   
                     class="oe-bg-gray-50 oe-px-5 oe-py-4 oe-rounded-2xl oe-flex oe-justify-between oe-items-center cursor-pointer hover:oe-bg-gray-100 transition-colors"
                   >
                     <div class="oe-flex oe-items-center oe-gap-3">
@@ -363,10 +364,11 @@
                   v-if="openPhases[2]"
                   class="oe-px-6 oe-pb-6 oe-space-y-3 mt-4"
                 >
+                <!-- @click="toggleTaskStatus(task)" -->
                   <div
                     v-for="(task, index) in phase2Tasks"
                     :key="task.id"
-                    @click="toggleTaskStatus(task)"
+                    
                     class="oe-bg-gray-50 oe-px-5 oe-py-4 oe-rounded-2xl oe-flex oe-justify-between oe-items-center cursor-pointer hover:oe-bg-gray-100 transition-colors"
                   >
                     <div class="oe-flex oe-items-center oe-gap-3">
@@ -495,10 +497,11 @@
                   v-if="openPhases[3]"
                   class="oe-px-6 oe-pb-6 oe-space-y-3 mt-4"
                 >
+                <!-- @click="toggleTaskStatus(task)" -->
                   <div
                     v-for="(task, index) in phase3Tasks"
                     :key="task.id"
-                    @click="toggleTaskStatus(task)"
+                    
                     class="oe-bg-gray-50 oe-px-5 oe-py-4 oe-rounded-2xl oe-flex oe-justify-between oe-items-center cursor-pointer hover:oe-bg-gray-100 transition-colors"
                   >
                     <div class="oe-flex oe-items-center oe-gap-3">
@@ -626,10 +629,11 @@
                   v-if="openPhases[4]"
                   class="oe-px-6 oe-pb-6 oe-space-y-3 mt-4"
                 >
+                <!-- @click="toggleTaskStatus(task)" -->
                   <div
                     v-for="(task, index) in phase4Tasks"
                     :key="task.id"
-                    @click="toggleTaskStatus(task)"
+                    
                     class="oe-bg-gray-50 oe-px-5 oe-py-4 oe-rounded-2xl oe-flex oe-justify-between oe-items-center cursor-pointer hover:oe-bg-gray-100 transition-colors"
                   >
                     <div class="oe-flex oe-items-center oe-gap-3">
@@ -694,12 +698,63 @@
         </div>
       </div>
     </div>
+
+    <Dialog
+      v-model="statusUpdateDialogOpen"
+      title="Update Task Status"
+      max-width="md"
+    >
+      <div class="oe-space-y-4">
+        <label class="oe-block oe-space-y-2">
+          <span class="oe-text-sm oe-font-medium oe-text-slate-700">Reason</span>
+          <input
+            v-model="statusUpdateReason"
+            type="text"
+            placeholder="Enter reason"
+            class="oe-w-full oe-rounded-2xl oe-border oe-border-slate-200 oe-px-4 oe-py-3 oe-text-sm focus:oe-border-blue-500 focus:oe-outline-none"
+          />
+        </label>
+
+        <label class="oe-block oe-space-y-2">
+          <span class="oe-text-sm oe-font-medium oe-text-slate-700">Comments</span>
+          <textarea
+            v-model="statusUpdateComments"
+            rows="3"
+            placeholder="Enter comments"
+            class="oe-w-full oe-rounded-2xl oe-border oe-border-slate-200 oe-px-4 oe-py-3 oe-text-sm focus:oe-border-blue-500 focus:oe-outline-none"
+          ></textarea>
+        </label>
+
+        <p v-if="statusUpdateError" class="oe-text-sm oe-text-red-600">
+          {{ statusUpdateError }}
+        </p>
+      </div>
+
+      <template #footer>
+        <button
+          @click="closeStatusUpdateDialog"
+          type="button"
+          class="oe-rounded-2xl oe-border oe-border-slate-200 oe-bg-white oe-px-4 oe-py-2 oe-text-sm oe-font-medium oe-text-slate-700 hover:oe-bg-slate-50"
+        >
+          Cancel
+        </button>
+        <button
+          @click="submitStatusUpdate"
+          :disabled="statusUpdateSubmitting"
+          type="button"
+          class="oe-rounded-2xl oe-bg-blue-600 oe-px-4 oe-py-2 oe-text-sm oe-font-medium oe-text-white hover:oe-bg-blue-700 disabled:oe-cursor-not-allowed disabled:oe-opacity-60"
+        >
+          {{ statusUpdateSubmitting ? "Saving..." : "Update" }}
+        </button>
+      </template>
+    </Dialog>
   </div>
 </template>
 
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue";
+import { Icon } from "@iconify/vue";
 import { useEmployeesApi } from "@/apis/employees";
 import { useAuthStore } from "@/stores/auth";
 import { useApi } from "@/composables/useApi";
@@ -856,6 +911,12 @@ const phase3Tasks = ref([]);
 const phase4Name = ref("");
 const phase4Description = ref("");
 const phase4Tasks = ref([]);
+const statusUpdateDialogOpen = ref(false);
+const statusUpdateReason = ref("");
+const statusUpdateComments = ref("");
+const statusUpdateError = ref("");
+const statusUpdateSubmitting = ref(false);
+const pendingStatusUpdate = ref(null);
 
 const mapStatusToUI = (status) => {
   if (!status) return "Pending";
@@ -985,16 +1046,45 @@ const toggleTaskStatus = async (task) => {
   const currentIndex = statuses.indexOf(task.status);
   const nextIndex = (currentIndex + 1) % statuses.length;
   const newStatus = statuses[nextIndex];
-  await updateTaskStatusDirectly(task, newStatus);
+  updateTaskStatusDirectly(task, newStatus);
 };
 
 const updateTaskStatus = async (tasksArray, index, newStatus) => {
   const task = tasksArray[index];
-  await updateTaskStatusDirectly(task, newStatus);
+  updateTaskStatusDirectly(task, newStatus);
 };
 
-const updateTaskStatusDirectly = async (task, newStatus) => {
+const updateTaskStatusDirectly = (task, newStatus) => {
   const oldStatus = task.status;
+  pendingStatusUpdate.value = { task, newStatus, oldStatus };
+  statusUpdateReason.value = "";
+  statusUpdateComments.value = "";
+  statusUpdateError.value = "";
+  statusUpdateDialogOpen.value = true;
+};
+
+const closeStatusUpdateDialog = () => {
+  statusUpdateDialogOpen.value = false;
+  statusUpdateError.value = "";
+  pendingStatusUpdate.value = null;
+};
+
+const submitStatusUpdate = async () => {
+  if (!pendingStatusUpdate.value) {
+    return;
+  }
+
+  const reason = statusUpdateReason.value.trim();
+  const comments = statusUpdateComments.value.trim();
+
+  if (!reason || !comments) {
+    statusUpdateError.value = "Reason and comments are required.";
+    return;
+  }
+
+  statusUpdateError.value = "";
+  statusUpdateSubmitting.value = true;
+  const { task, newStatus, oldStatus } = pendingStatusUpdate.value;
   task.status = newStatus;
 
   try {
@@ -1003,8 +1093,8 @@ const updateTaskStatusDirectly = async (task, newStatus) => {
 
     const payload = {
       status: mapUIToStatus(newStatus),
-      reason: "Status updated from UI",
-      comments: ""
+      reason,
+      comments,
     };
 
     const response = await call(endpoint, {
@@ -1019,6 +1109,9 @@ const updateTaskStatusDirectly = async (task, newStatus) => {
   } catch (error) {
     task.status = oldStatus;
     console.error("Error updating task status:", error);
+  } finally {
+    statusUpdateSubmitting.value = false;
+    closeStatusUpdateDialog();
   }
 };
 

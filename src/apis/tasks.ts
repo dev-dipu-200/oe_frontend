@@ -46,10 +46,7 @@ export function useTasksApi() {
       const response = await call<TasksResponse>('hr/my-tasks', {
         method: 'GET',
         params,
-      });
-
-      console.log("My Tasks API Response:", response);
-      
+      });  
       return response;
     } catch (error) {
       console.error("Error fetching my tasks:", error);

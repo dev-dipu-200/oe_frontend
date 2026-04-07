@@ -161,14 +161,21 @@ const handleEscape = (e: KeyboardEvent) => {
   }
 };
 
+const setBodyOverflow = (overflow: string) => {
+  if (typeof document === "undefined" || !document.body) {
+    return;
+  }
+  document.body.style.overflow = overflow;
+};
+
 // Prevent body scroll when open
 watch(
   () => props.modelValue,
   (value) => {
     if (value) {
-      document.body.style.overflow = "hidden";
+      setBodyOverflow("hidden");
     } else {
-      document.body.style.overflow = "";
+      setBodyOverflow("");
     }
   },
   { immediate: true },
@@ -180,6 +187,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener("keydown", handleEscape);
-  document.body.style.overflow = "";
+  setBodyOverflow("");
 });
 </script>

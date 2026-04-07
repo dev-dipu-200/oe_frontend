@@ -85,6 +85,7 @@ import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 import { useRoute, useRouter } from 'vue-router'
+import { validateFieldByName } from '@/composables/useFieldValidation'
 
 definePageMeta({
   layout: 'auth'
@@ -100,6 +101,12 @@ const password_confirmation = ref('')
 const loading = ref(false)
 
 const handleResetPassword = async () => {
+  const passwordValidationError = validateFieldByName('password', new_password.value)
+  if (passwordValidationError) {
+    toastStore.error(passwordValidationError)
+    return
+  }
+
   if (new_password.value !== password_confirmation.value) {
     toastStore.error('Passwords do not match.')
     return

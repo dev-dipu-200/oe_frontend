@@ -68,8 +68,8 @@
                   class="oe-absolute oe-inset-y-0 oe-right-0 oe-flex oe-items-center oe-px-4 oe-text-gray-300 hover:oe-text-white focus:oe-outline-none oe-transition-colors"
                 >
                   <Icon
-                    :icon="passwordVisible ? 'mdi:eye-off' : 'mdi:eye'"
-                    class="oe-w-5 oe-h-5"
+                    :icon="passwordVisible ? 'mdi:eye-off-outline' : 'mdi:eye-outline'"
+                    class="oe-w-5 oe-h-5 oe-text-gray-300 hover:oe-text-white oe-transition-colors"
                   />
                 </button>
               </div>

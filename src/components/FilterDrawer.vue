@@ -79,6 +79,37 @@
                     </div>
                   </div>
 
+                  <div class="oe-grid oe-grid-cols-2 oe-gap-4">
+                    <div>
+                      <label for="department" class="oe-block oe-text-sm oe-font-medium oe-text-gray-700">Department</label>
+                      <div class="oe-mt-1">
+                        <input
+                          type="text"
+                          id="department"
+                          v-model="filters.department"
+                          class="oe-shadow-sm focus:oe-ring-indigo-500 focus:oe-border-indigo-500 oe-block oe-w-full oe-sm:text-sm oe-border-gray-300 oe-rounded-md oe-p-2 oe-border"
+                          placeholder="e.g. it"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label for="task_status" class="oe-block oe-text-sm oe-font-medium oe-text-gray-700">Task Status</label>
+                      <div class="oe-mt-1">
+                        <select
+                          id="task_status"
+                          v-model="filters.task_status"
+                          class="oe-mt-1 oe-block oe-w-full oe-pl-3 oe-pr-10 oe-py-2 oe-text-base oe-border-gray-300 focus:oe-outline-none focus:oe-ring-indigo-500 focus:oe-border-indigo-500 oe-sm:text-sm oe-rounded-md oe-border"
+                        >
+                          <option value="">All</option>
+                          <option value="pending">Pending</option>
+                          <option value="inprogress">In Progress</option>
+                          <option value="hold">Hold</option>
+                          <option value="done">Done</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
                   <div class="oe-flex oe-items-center">
                     <input
                       id="is_paginate"
@@ -162,6 +193,8 @@ interface FilterPayload {
   keyword?: string;
   from_date?: string;
   to_date?: string;
+  department?: string;
+  task_status?: string;
   is_paginate: boolean;
   page?: number;
   page_size?: number;
@@ -182,6 +215,8 @@ const filters = ref({
   keyword: props.initialFilters?.keyword || '',
   from_date: props.initialFilters?.from_date || '',
   to_date: props.initialFilters?.to_date || '',
+  department: props.initialFilters?.department || '',
+  task_status: props.initialFilters?.task_status || '',
   is_paginate: props.initialFilters?.is_paginate ?? true,
   page: props.initialFilters?.page || 1,
   page_size: props.initialFilters?.page_size || 10,
@@ -193,6 +228,8 @@ watch(() => props.initialFilters, (newVal) => {
       keyword: newVal.keyword || '',
       from_date: newVal.from_date || '',
       to_date: newVal.to_date || '',
+      department: newVal.department || '',
+      task_status: newVal.task_status || '',
       is_paginate: newVal.is_paginate ?? true,
       page: newVal.page || 1,
       page_size: newVal.page_size || 10,
@@ -215,6 +252,12 @@ const buildFilterPayload = (): Record<string, any> => {
   if (filters.value.to_date) {
     payload.to_date = filters.value.to_date;
   }
+  if (filters.value.department?.trim()) {
+    payload.department = filters.value.department.trim();
+  }
+  if (filters.value.task_status) {
+    payload.task_status = filters.value.task_status;
+  }
   payload.is_paginate = Boolean(filters.value.is_paginate);
   if (payload.is_paginate) {
     payload.page = Number(filters.value.page) || 1;
@@ -235,6 +278,8 @@ const resetFilters = () => {
     keyword: '',
     from_date: '',
     to_date: '',
+    department: '',
+    task_status: '',
     is_paginate: true,
     page: 1,
     page_size: 10,

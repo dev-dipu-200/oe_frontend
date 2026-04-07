@@ -44,6 +44,10 @@ export default defineNuxtConfig({
   },
 
   vite: {
+    ssr: {
+      noExternal: ["vue", "vue-router", "vue3-toastify", "@iconify/vue"],
+    },
+
     optimizeDeps: {
       include: [
         "pinia-plugin-persistedstate",
@@ -74,6 +78,14 @@ export default defineNuxtConfig({
   devServer: {
     host: "0.0.0.0",
     port,
+  },
+
+  nitro: {
+    rollupConfig: {
+      output: {
+        interop: "auto",
+      },
+    },
   },
 
   icon: {
